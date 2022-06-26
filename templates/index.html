@@ -1,0 +1,10 @@
+{% extends "base.html" %} {% block title %} TITLE {% endblock %} {% block content %}
+<div class="links">
+    {% for link in links %}
+    <li>
+        {% for item in link.keys() %}
+        <a href="{{ link[item] }}"> {{ item }} </a> {% endfor %}
+    </li>
+    {% endfor %}
+</div>
+{% endblock %}

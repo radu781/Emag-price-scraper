@@ -1,0 +1,4 @@
+flask_session
+*cache*
+.vscode/
+config/
