@@ -1,10 +1,31 @@
-{% extends "base.html" %} {% block title %} TITLE {% endblock %} {% block content %}
-<div class="links">
-    {% for link in links %}
-    <li>
-        {% for item in link.keys() %}
-        <a href="{{ link[item] }}"> {{ item }} </a> {% endfor %}
-    </li>
-    {% endfor %}
+{% extends "base.html" %} {% block title %} Main page {% endblock %} {% block content %}
+<div class="main">
+    Search on emag:
+    <form action="/" method="post">
+        <input type="text" name="user-prompt" id="user-prompt">
+        <button type="submit">Search</button>
+    </form>
+    <div class="links">
+        {% if links %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Product name</th>
+                    <th>Price</th>
+                </tr>
+            </thead>
+            {% for item in links %}
+            <tr>
+                <td>
+                    <a href="{{ item['link'] }}"> {{ item['title'] }} </a>
+                </td>
+                <td>
+                    {{ item['price'] }}
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+        {% endif %}
+    </div>
 </div>
 {% endblock %}

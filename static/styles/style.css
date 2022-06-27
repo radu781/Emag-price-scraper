@@ -1,4 +1,19 @@
+.main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
 .links {
     display: flex;
     flex-direction: column;
+}
+
+td {
+    width: 20%;
+}
+
+th {
+    text-align: left;
 }
