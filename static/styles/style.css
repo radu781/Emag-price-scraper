@@ -1,8 +1,7 @@
 .main {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
+    margin: 0 5%;
 }
 
 .links {
@@ -16,4 +15,8 @@ td {
 
 th {
     text-align: left;
+}
+
+.my-table {
+    margin: 0 10%;
 }

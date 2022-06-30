@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 from bs4 import BeautifulSoup
-from bs4.element import Tag
+from bs4.element import NavigableString
 from scraper.scraper import Scraper
 import requests
 
@@ -17,42 +17,50 @@ class EmagScraper(Scraper):
         page = requests.get(self.current_link)
         self.all_soup = BeautifulSoup(page.content, "html.parser")
 
-    def get_results(self) -> list[str]:
-        individual_results = self.all_soup.find_all(class_="card-v2-info")
+    def get_results(self) -> list[dict[str, str]]:
+        individual_results = self.all_soup.find_all(class_="card-item")
+        out: list[dict[str, str]] = []
 
         for result in individual_results:
-            current_product = BeautifulSoup(bytes(str(result), "utf-8"), "html.parser")
-            product_link = current_product.find(class_="card-v2-thumb")
+            if self.search_count <= 0:
+                break
+            out.append(self._get_details(result))
+            self.search_count -= 1
 
-            if not isinstance(product_link, Tag):
-                continue
-            self.search_results.append(str(product_link["href"]))
+        return out
 
-        return self.search_results
-
-    def get_details(self, link: str) -> dict[str, str]:
-        html = requests.get(link)
-        current_soup = BeautifulSoup(html.content, "html.parser")
+    def _get_details(self, soup: BeautifulSoup) -> dict[str, str]:
         return {
-            "title": self._get_title(current_soup),
-            "link": link,
-            "price": self._get_price(current_soup),
-            "image": self._get_image(current_soup),
+            "title": self._get_title(soup),
+            "link": self._get_link(soup),
+            "price": self._get_price(soup),
+            "image": self._get_image(soup),
         }
 
     def _get_title(self, soup: BeautifulSoup) -> str:
-        title = soup.find(class_="page-title")
+        title = soup.find(class_="card-v2-title")
 
-        if title is not None:
-            return title.text.strip()
-        return ""
+        if title is None:
+            return "N/A"
+        return title.text.strip()
 
     def _get_image(self, soup: BeautifulSoup) -> str:
-        return super()._get_image(soup)
+        image_div = soup.find(class_="card-v2-thumb")
+
+        if image_div is None:
+            return "resources/images/not_found.jpg"
+        return image_div.img["src"]  # type: ignore
 
     def _get_price(self, soup: BeautifulSoup) -> str:
         price = soup.find(class_="product-new-price")
 
-        if price is not None:
-            return price.text.strip()
-        return ""
+        if price is None:
+            return "Price not found"
+        return price.text.strip()
+
+    def _get_link(self, soup: BeautifulSoup) -> str:
+        link = soup.find(class_="card-v2-thumb")
+
+        if link is None or isinstance(link, NavigableString):
+            return "Link not found"
+        return str(link["href"])

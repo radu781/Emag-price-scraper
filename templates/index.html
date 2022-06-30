@@ -1,31 +1,41 @@
 {% extends "base.html" %} {% block title %} Main page {% endblock %} {% block content %}
 <div class="main">
     Search on emag:
-    <form action="/" method="post">
-        <input type="text" name="user-prompt" id="user-prompt">
-        <button type="submit">Search</button>
+    <form action="/" method="get">
+        <div>
+            <input type="text" name="q" id="user-prompt">
+            <button>Advanced</button>
+        </div>
+        <div>
+            <input type="number" name="search-count" id="search-count">
+            <input type="range" min="0" max="9999" name="price-min" id="price-min">
+            <input type="range" min="0" max="9999" name="price-max" id="price-max">
+            <button type="submit">Search</button>
+        </div>
     </form>
-    <div class="links">
-        {% if links %}
-        <table>
-            <thead>
-                <tr>
-                    <th>Product name</th>
-                    <th>Price</th>
-                </tr>
-            </thead>
-            {% for item in links %}
+    {% if links %}
+    <table class="table table-borderless table-responsive my-table">
+        <thead>
             <tr>
-                <td>
-                    <a href="{{ item['link'] }}"> {{ item['title'] }} </a>
-                </td>
-                <td>
-                    {{ item['price'] }}
-                </td>
+                <th>Image</th>
+                <th>Product name</th>
+                <th>Price</th>
             </tr>
-            {% endfor %}
-        </table>
-        {% endif %}
-    </div>
+        </thead>
+        {% for item in links %}
+        <tr>
+            <td>
+                <img src="{{ item['image'] }}" alt="product image" class="img-fluid" width="20%">
+            </td>
+            <td>
+                <a href="{{ item['link'] }}"> {{ item['title'] }} </a>
+            </td>
+            <td>
+                {{ item['price'] }}
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% endif %}
 </div>
 {% endblock %}

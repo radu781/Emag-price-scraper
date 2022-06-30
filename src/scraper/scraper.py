@@ -7,14 +7,15 @@ from bs4 import BeautifulSoup
 class Scraper(ABC):
     BASE_LINK: str
     user_prompt: str
+    search_count: int
     current_link: str = field(init=False)
 
     @abstractmethod
-    def get_results(self) -> list[str]:
+    def get_results(self) -> list[dict[str, str]]:
         ...
 
     @abstractmethod
-    def get_details(self, link: str) -> dict[str, str]:
+    def _get_details(self, link: str) -> dict[str, str]:
         ...
 
     @abstractmethod
@@ -27,4 +28,8 @@ class Scraper(ABC):
 
     @abstractmethod
     def _get_price(self, soup: BeautifulSoup) -> str:
+        ...
+
+    @abstractmethod
+    def _get_link(self, soup: BeautifulSoup) -> str:
         ...

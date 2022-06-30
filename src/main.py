@@ -13,17 +13,21 @@ app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
 
-@app.route("/", methods=["GET", "POST"])
+@app.route("/")
 def index():
-    links = []
-    if request.method == "POST":
-        scraper = EmagScraper("https://www.emag.ro/search/", request.form["user-prompt"])
-        results = scraper.get_results()
-        for result in results:
-            links.append(scraper.get_details(result))
+    fields: list[str] = ["q", "search-count", "price-min", "price-max"]
+    for field in fields:
+        if not field in request.args:
+            return render_template("index.html")
 
-    return render_template("index.html", links=links)
+    scraper = EmagScraper(
+        "https://www.emag.ro/search/",
+        request.args["q"],
+        int(request.args["search-count"]),
+    )
+
+    return render_template("index.html", links=scraper.get_results())
 
 
 if __name__ == "__main__":
-    app.run(port=80)
+    app.run(port=80, debug=True)
