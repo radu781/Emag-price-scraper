@@ -20,3 +20,25 @@ th {
 .my-table {
     margin: 0 10%;
 }
+
+#advanced-search-options {
+    display: none;
+}
+
+.fake-button {
+    background-color: gray;
+    border-radius: 10px;
+    display: inline;
+    padding: 3px 10px;
+}
+
+.fake-button:hover {
+    background-color: #909090;
+    cursor: pointer;
+}
+
+#price-min-number,
+#price-max-number {
+    position: relative;
+    top: -10px;
+}

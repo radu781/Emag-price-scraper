@@ -1,17 +1,27 @@
-{% extends "base.html" %} {% block title %} Main page {% endblock %} {% block content %}
+{% extends "base.html" %} {% block title %} Main page {% endblock %} {% block scripts %}
+<script src="{{ url_for('static', filename='scripts/index.js') }}"></script>{% endblock %} {% block content %}
 <div class="main">
     Search on emag:
     <form action="/" method="get">
         <div>
             <input type="text" name="q" id="user-prompt">
-            <button>Advanced</button>
+            <div id="advanced-button" class="fake-button">Show advanced</div>
         </div>
-        <div>
+        <div id="advanced-search-options">
+            <label for="search-count">Results:</label>
             <input type="number" name="search-count" id="search-count">
-            <input type="range" min="0" max="9999" name="price-min" id="price-min">
-            <input type="range" min="0" max="9999" name="price-max" id="price-max">
-            <button type="submit">Search</button>
+            <div id="price-min-value">
+                <label for="price-min">Minimum price:</label>
+                <input type="range" min="0" max="9999" name="price-min" id="price-min">
+                <div id="price-min-number"> -</div>
+            </div>
+            <div id="price-max-value">
+                <label for="price-max">Maximum price:</label>
+                <input type="range" min="0" max="9999" name="price-max" id="price-max">
+                <div id="price-max-number"> </div>
+            </div>
         </div>
+        <button type="submit">Search</button>
     </form>
     {% if links %}
     <table class="table table-borderless table-responsive my-table">
