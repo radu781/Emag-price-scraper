@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, session, redirect
 from flask_session import Session
 from configparser import ConfigParser
+import re
 from scraper.emag_scraper import EmagScraper
 
 ini_file = ConfigParser()
@@ -9,7 +10,7 @@ key = ini_file.get("pages", "key")
 
 app = Flask(__name__, template_folder="../templates", static_folder="../static")
 app.secret_key = key
-app.config["SESSION_TYPE"] = "filesystem"
+app.config["SESSION_TYPE"] = "SameSite"
 Session(app)
 
 
@@ -26,7 +27,21 @@ def index():
         int(request.args["search-count"]),
     )
 
-    return render_template("index.html", links=scraper.get_results())
+    return render_template(
+        "index.html",
+        links=filter(
+            lambda x: int(request.args["price-min"])
+            <= float(
+                re.sub(
+                    r",(\d\d) (Lei)",
+                    r"",
+                    str(x["price"]),
+                )
+            )
+            <= int(request.args["price-max"]),
+            scraper.get_results(),
+        ),
+    )
 
 
 if __name__ == "__main__":

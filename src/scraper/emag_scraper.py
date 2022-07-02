@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 from bs4 import BeautifulSoup
-from bs4.element import NavigableString
+from bs4.element import Tag, NavigableString
 from scraper.scraper import Scraper
 import requests
 
@@ -47,7 +47,7 @@ class EmagScraper(Scraper):
     def _get_image(self, soup: BeautifulSoup) -> str:
         image_div = soup.find(class_="card-v2-thumb")
 
-        if image_div is None:
+        if image_div is None or isinstance(image_div, NavigableString):
             return "resources/images/not_found.jpg"
         return image_div.img["src"]  # type: ignore
 
@@ -55,7 +55,7 @@ class EmagScraper(Scraper):
         price = soup.find(class_="product-new-price")
 
         if price is None:
-            return "Price not found"
+            return "-1"
         return price.text.strip()
 
     def _get_link(self, soup: BeautifulSoup) -> str:
