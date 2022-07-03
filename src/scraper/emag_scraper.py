@@ -1,7 +1,9 @@
+import asyncio
 from dataclasses import dataclass, field
 from bs4 import BeautifulSoup
 from bs4.element import Tag, NavigableString
 from scraper.scraper import Scraper
+import aiohttp
 import requests
 
 
@@ -28,26 +30,32 @@ class EmagScraper(Scraper):
         else:
             self.pages = int(numbers[-2].text.strip())
 
-    def get_results(self) -> list[dict[str, str]]:
-        out: list[dict[str, str]] = []
-        for page_index in range(2, (self.pages + 2)):
-            current_page = requests.get(self.current_link + f"/p{page_index}")
-            current_soup = BeautifulSoup(current_page.content, "html.parser")
+    async def get_results(self) -> list[dict[str, str]]:
+        async with aiohttp.ClientSession() as session:
+            tasks = []
+            for page_index in range(2, (self.pages + 2)//30):
+                tasks.append(asyncio.ensure_future(self._get_details(session, self.current_link + f"/p{page_index}")))
+            result = await asyncio.gather(*tasks)
+            out:list[dict[str,str]]=[]
+            for row in result:
+                for item in row:
+                    out.append(item)
+            return out
 
-            individual_results = current_soup.find_all(class_="card-item")
+    async def _get_details(self,session:aiohttp.ClientSession, url: str) -> list[dict[str, str]]:
+        out:list[dict[str,str]] = []
 
-            for result in individual_results:
-                out.append(self._get_details(result))
+        async with session.get(url) as response:
+            cards = BeautifulSoup(await response.text(), "html.parser").find_all(class_="card-v2")
+            for card in cards:
+                out.append({
+                    "title": self._get_title(card),
+                    "link": self._get_link(card),
+                    "price": self._get_price(card),
+                    "image": self._get_image(card),
+                })
 
         return out
-
-    def _get_details(self, soup: BeautifulSoup) -> dict[str, str]:
-        return {
-            "title": self._get_title(soup),
-            "link": self._get_link(soup),
-            "price": self._get_price(soup),
-            "image": self._get_image(soup),
-        }
 
     def _get_title(self, soup: BeautifulSoup) -> str:
         title = soup.find(class_="card-v2-title")
