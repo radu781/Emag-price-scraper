@@ -3,8 +3,9 @@ import json
 from flask import Flask, render_template, request, session, redirect, make_response
 from flask_session import Session
 from configparser import ConfigParser
-import re
 from scraper.emag_scraper import EmagScraper
+from utils.argument_parser import ArgType, Argument, ArgumentParser
+from utils.dbmanager import DBManager
 
 ini_file = ConfigParser()
 ini_file.read("config/pages.ini")
@@ -15,20 +16,24 @@ app.secret_key = key
 app.config["SESSION_TYPE"] = "SameSite"
 Session(app)
 
+db = DBManager()
+
 
 @app.route("/")
 def index():
-    fields: list[str] = ["q", "search-count", "price-min", "price-max"]
-    # for field in fields:
-    #     if not field in request.args:
-    #         return render_template("index.html")
-
-    search_count = int(request.args.get("search-count", -1))
-    price_min = int(request.args.get("price-min", 0))
-    price_max = int(request.args.get("price-max", 10000))
+    parser = ArgumentParser(
+        request,
+        {
+            Argument("q", ArgType.Mandatory, None),
+            Argument("search-count", ArgType.Optional, -1),
+            Argument("price-min", ArgType.Optional, 0),
+            Argument("price-max", ArgType.Optional, 10_000),
+        },
+    )
+    values = parser.get_values()
 
     scraper = EmagScraper(
-        "https://www.emag.ro/search/", request.args["q"], search_count
+        "https://www.emag.ro/search/", values["q"], int(values["search-count"])
     )
     results = scraper.get_results()
     filtered = filter(
@@ -56,7 +61,7 @@ def index():
     response = make_response(
         render_template(
             "index.html",
-            links=sorted_res[:search_count],
+            links=results[: int(values["search-count"])],
             entry_count=len(results),
             page_count=scraper.pages,
         )

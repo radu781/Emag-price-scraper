@@ -1,4 +1,3 @@
-from cmath import sqrt
 from dataclasses import dataclass, field
 from bs4 import BeautifulSoup
 from bs4.element import Tag, NavigableString
@@ -24,11 +23,14 @@ class EmagScraper(Scraper):
             self.pages = 1
             return
         numbers: list[Tag] = results.find_all(class_="js-change-page")
-        self.pages = int(numbers[-2].text.strip())
+        if numbers == []:
+            self.pages = 1
+        else:
+            self.pages = int(numbers[-2].text.strip())
 
     def get_results(self) -> list[dict[str, str]]:
         out: list[dict[str, str]] = []
-        for page_index in range(2, int(sqrt(self.pages + 1).real)):
+        for page_index in range(2, (self.pages + 2)):
             current_page = requests.get(self.current_link + f"/p{page_index}")
             current_soup = BeautifulSoup(current_page.content, "html.parser")
 
