@@ -1,4 +1,6 @@
-from flask import Flask, render_template, request, session, redirect
+from itertools import count
+import json
+from flask import Flask, render_template, request, session, redirect, make_response
 from flask_session import Session
 from configparser import ConfigParser
 import re
@@ -17,31 +19,49 @@ Session(app)
 @app.route("/")
 def index():
     fields: list[str] = ["q", "search-count", "price-min", "price-max"]
-    for field in fields:
-        if not field in request.args:
-            return render_template("index.html")
+    # for field in fields:
+    #     if not field in request.args:
+    #         return render_template("index.html")
+
+    search_count = int(request.args.get("search-count", -1))
+    price_min = int(request.args.get("price-min", 0))
+    price_max = int(request.args.get("price-max", 10000))
 
     scraper = EmagScraper(
-        "https://www.emag.ro/search/",
-        request.args["q"],
-        int(request.args["search-count"]),
+        "https://www.emag.ro/search/", request.args["q"], search_count
     )
-
-    return render_template(
-        "index.html",
-        links=filter(
-            lambda x: int(request.args["price-min"])
-            <= float(
-                re.sub(
-                    r",(\d\d) (Lei)",
-                    r"",
-                    str(x["price"]),
-                )
+    results = scraper.get_results()
+    filtered = filter(
+        lambda x: price_min
+        <= float(
+            re.sub(
+                r",(\d\d) (Lei)|de la",
+                r"",
+                str(x["price"]),
             )
-            <= int(request.args["price-max"]),
-            scraper.get_results(),
+        )
+        <= price_max,
+        results,
+    )
+    sorted_res = sorted(
+        filtered,
+        key=lambda x: float(
+            re.sub(
+                r",(\d\d) (Lei)|de la",
+                r"",
+                str(x["price"]),
+            )
         ),
     )
+    response = make_response(
+        render_template(
+            "index.html",
+            links=sorted_res[:search_count],
+            entry_count=len(results),
+            page_count=scraper.pages,
+        )
+    )
+    return response
 
 
 if __name__ == "__main__":

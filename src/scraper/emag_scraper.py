@@ -1,3 +1,4 @@
+from cmath import sqrt
 from dataclasses import dataclass, field
 from bs4 import BeautifulSoup
 from bs4.element import Tag, NavigableString
@@ -15,17 +16,26 @@ class EmagScraper(Scraper):
     def __post_init__(self) -> None:
         self.current_link = self.BASE_LINK + self.user_prompt
         page = requests.get(self.current_link)
+
         self.all_soup = BeautifulSoup(page.content, "html.parser")
+        footer: list[Tag] = self.all_soup.find_all(class_="listing-panel")
+        results = footer[1].find(class_="listing-panel-footer")
+        if not isinstance(results, Tag):
+            self.pages = 1
+            return
+        numbers: list[Tag] = results.find_all(class_="js-change-page")
+        self.pages = int(numbers[-2].text.strip())
 
     def get_results(self) -> list[dict[str, str]]:
-        individual_results = self.all_soup.find_all(class_="card-item")
         out: list[dict[str, str]] = []
+        for page_index in range(2, int(sqrt(self.pages + 1).real)):
+            current_page = requests.get(self.current_link + f"/p{page_index}")
+            current_soup = BeautifulSoup(current_page.content, "html.parser")
 
-        for result in individual_results:
-            if self.search_count <= 0:
-                break
-            out.append(self._get_details(result))
-            self.search_count -= 1
+            individual_results = current_soup.find_all(class_="card-item")
+
+            for result in individual_results:
+                out.append(self._get_details(result))
 
         return out
 
@@ -49,7 +59,15 @@ class EmagScraper(Scraper):
 
         if image_div is None or isinstance(image_div, NavigableString):
             return "resources/images/not_found.jpg"
-        return image_div.img["src"]  # type: ignore
+        img = image_div.contents[0]
+        if not isinstance(img, Tag):
+            return "resources/images/not_found.jpg"
+
+        try:
+            return str(img["src"])
+        except KeyError:
+            print(img)
+            return "resources/images/not_found.jpg"
 
     def _get_price(self, soup: BeautifulSoup) -> str:
         price = soup.find(class_="product-new-price")

@@ -26,6 +26,7 @@
         <button type="submit">Search</button>
     </form>
     {% if links %}
+    <p>Found {{ entry_count }} entries across {{ page_count }} pages</p>
     <table class="table table-borderless table-responsive my-table">
         <thead>
             <tr>

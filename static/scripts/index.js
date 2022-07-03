@@ -1,14 +1,22 @@
 import { getParameters } from "./url.js"
+
 const advancedButton = document.querySelector("#advanced-button")
 const userPrompt = document.querySelector("#user-prompt")
 const searchCount = document.querySelector("#search-count")
 const priceMinSlider = document.querySelector("#price-min")
 const priceMaxSlider = document.querySelector("#price-max")
-let advancedOptionsShown = false
+setFormFieldsFromUrl()
+
+let advancedOptionsShown = searchCount.value !== "" || priceMinSlider.value != 0 || priceMaxSlider.value != 0
+console.log(searchCount.value, priceMinSlider.value, priceMaxSlider.value, advancedOptionsShown)
+toggleAdvancedSearch()
 
 advancedButton.addEventListener("click", () => {
+    toggleAdvancedSearch()
+})
+
+function toggleAdvancedSearch() {
     const advancedOptions = document.querySelector("#advanced-search-options")
-    advancedOptionsShown = !advancedOptionsShown
     if (advancedOptionsShown) {
         advancedOptions.style.display = "inline"
         advancedButton.innerHTML = "Hide advanced"
@@ -18,14 +26,23 @@ advancedButton.addEventListener("click", () => {
         advancedOptions.style.display = "none"
         advancedButton.innerHTML = "Show advanced"
     }
-})
+    advancedOptionsShown = !advancedOptionsShown
+}
 
 function setFormFieldsFromUrl() {
     const values = getParameters(window.location.href)
     if (values["q"]) { userPrompt.value = values["q"] }
     if (values["search-count"]) { searchCount.value = values["search-count"] }
-    if (values["price-min"]) { priceMinSlider.value = values["price-min"] }
-    if (values["price-max"]) { priceMaxSlider.value = values["price-max"] }
+    if (values["price-min"]) {
+        priceMinSlider.value = values["price-min"]
+    } else {
+        priceMinSlider.value = 0
+    }
+    if (values["price-max"]) {
+        priceMaxSlider.value = values["price-max"]
+    } else {
+        priceMaxSlider.value = 0
+    }
 }
 
 function showPriceTooltip(id, callerNode) {
@@ -38,6 +55,5 @@ function showPriceTooltip(id, callerNode) {
     priceValue.style.left = `${position + 100}px`
     priceValue.innerHTML = callerNode.value
 }
-setFormFieldsFromUrl()
 priceMinSlider.addEventListener("input", () => showPriceTooltip("#price-min-number", priceMinSlider))
 priceMaxSlider.addEventListener("input", () => showPriceTooltip("#price-max-number", priceMaxSlider))

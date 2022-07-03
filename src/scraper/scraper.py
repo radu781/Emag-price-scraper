@@ -9,6 +9,7 @@ class Scraper(ABC):
     user_prompt: str
     search_count: int
     current_link: str = field(init=False)
+    pages: int = field(init=False)
 
     @abstractmethod
     def get_results(self) -> list[dict[str, str]]:
