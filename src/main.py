@@ -1,9 +1,13 @@
 import asyncio
 import nest_asyncio
+
+from utils.item_dao import ItemDAO
 nest_asyncio.apply()
-from aioflask import Flask, session, redirect
-from flask import make_response, request,render_template
+
+from aioflask import Flask, redirect, session
+from flask import make_response, render_template, request
 from flask_session import Session
+
 from configparser import ConfigParser
 from scraper.emag_scraper import EmagScraper
 from utils.argument_parser import ArgType, Argument, ArgumentParser
@@ -35,10 +39,11 @@ async def index():
         "https://www.emag.ro/search/", values["q"], int(values["search-count"])
     )
     results = await asyncio.create_task(scraper.get_results())
+    ItemDAO.insert_multiple(results)
     template = render_template(
         "index.html",
         links=results,
-        page_count=scraper.pages,
+        entry_count=len(results),
     )
     response = make_response(template)
     return response

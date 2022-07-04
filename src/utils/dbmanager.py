@@ -33,7 +33,7 @@ class DBManager:
             self.connector.commit()
             return self.cursor.fetchall()
         except Exception as e:
-            print(e)
+            print(e, "statement:", pretty_statement)
             return []
 
     def execute_multiple(

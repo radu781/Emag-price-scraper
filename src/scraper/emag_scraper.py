@@ -2,13 +2,16 @@ import asyncio
 from dataclasses import dataclass, field
 from bs4 import BeautifulSoup
 from bs4.element import Tag, NavigableString
-from scraper.scraper import Scraper
+from scraper.item import Item
+from scraper.scraper import ElementNotFoundException, Scraper
 import aiohttp
 import requests
 
 
 @dataclass
 class EmagScraper(Scraper):
+    PAGE_LIMIT: int = field(init=False, default=10000)
+
     all_soup: BeautifulSoup = field(init=False)
     one_page_soup: BeautifulSoup = field(init=False)
     links: list[str] = field(init=False)
@@ -30,38 +33,58 @@ class EmagScraper(Scraper):
         else:
             self.pages = int(numbers[-2].text.strip())
 
-    async def get_results(self) -> list[dict[str, str]]:
+    async def get_results(self) -> list[Item]:
         async with aiohttp.ClientSession() as session:
-            tasks = []
-            for page_index in range(2, (self.pages + 2)//30):
-                tasks.append(asyncio.ensure_future(self._get_details(session, self.current_link + f"/p{page_index}")))
+            tasks: list[asyncio.Future[list[Item]]] = []
+            for page_index in range(2, min(self.pages + 2, EmagScraper.PAGE_LIMIT)):
+                try:
+                    tasks.append(
+                        asyncio.ensure_future(
+                            self._get_details(
+                                session, self.current_link + f"/p{page_index}"
+                            )
+                        )
+                    )
+                except:
+                    break
             result = await asyncio.gather(*tasks)
-            out:list[dict[str,str]]=[]
+            out: list[Item] = []
             for row in result:
                 for item in row:
                     out.append(item)
             return out
 
-    async def _get_details(self,session:aiohttp.ClientSession, url: str) -> list[dict[str, str]]:
-        out:list[dict[str,str]] = []
+    async def _get_details(
+        self, session: aiohttp.ClientSession, url: str
+    ) -> list[Item]:
+        out: list[Item] = []
 
-        async with session.get(url) as response:
-            cards = BeautifulSoup(await response.text(), "html.parser").find_all(class_="card-v2")
-            for card in cards:
-                out.append({
-                    "title": self._get_title(card),
-                    "link": self._get_link(card),
-                    "price": self._get_price(card),
-                    "image": self._get_image(card),
-                })
-
+        try:
+            async with session.get(url) as response:
+                cards = BeautifulSoup(await response.text(), "html.parser").find_all(
+                    class_="card-v2"
+                )
+                for card in cards:
+                    try:
+                        out.append(
+                            Item(
+                                self._get_title(card),
+                                self._get_link(card),
+                                self._get_price(card),
+                                self._get_image(card),
+                            )
+                        )
+                    except ElementNotFoundException:
+                        pass
+        except:
+            return []
         return out
 
     def _get_title(self, soup: BeautifulSoup) -> str:
         title = soup.find(class_="card-v2-title")
 
         if title is None:
-            return "N/A"
+            raise ElementNotFoundException()
         return title.text.strip()
 
     def _get_image(self, soup: BeautifulSoup) -> str:
@@ -76,19 +99,18 @@ class EmagScraper(Scraper):
         try:
             return str(img["src"])
         except KeyError:
-            print(img)
-            return "resources/images/not_found.jpg"
+            raise ElementNotFoundException()
 
     def _get_price(self, soup: BeautifulSoup) -> str:
         price = soup.find(class_="product-new-price")
 
         if price is None:
-            return "-1"
+            raise ElementNotFoundException()
         return price.text.strip()
 
     def _get_link(self, soup: BeautifulSoup) -> str:
         link = soup.find(class_="card-v2-thumb")
 
         if link is None or isinstance(link, NavigableString):
-            return "Link not found"
+            raise ElementNotFoundException()
         return str(link["href"])

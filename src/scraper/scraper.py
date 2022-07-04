@@ -34,3 +34,8 @@ class Scraper(ABC):
     @abstractmethod
     def _get_link(self, soup: BeautifulSoup) -> str:
         ...
+
+
+class ElementNotFoundException(Exception):
+    def __init__(self, *args: object) -> None:
+        super().__init__(*args)

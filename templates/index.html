@@ -26,7 +26,7 @@
         <button type="submit">Search</button>
     </form>
     {% if links %}
-    <p>Found {{ entry_count }} entries across {{ page_count }} pages</p>
+    <p>Found {{ entry_count }} entries</p>
     <table class="table table-borderless table-responsive my-table">
         <thead>
             <tr>
@@ -38,13 +38,13 @@
         {% for item in links %}
         <tr>
             <td>
-                <img src="{{ item['image'] }}" alt="product image" class="img-fluid" width="20%">
+                <img src="{{ item.image }}" alt="product image" class="img-fluid" width="20%">
             </td>
             <td>
-                <a href="{{ item['link'] }}"> {{ item['title'] }} </a>
+                <a href="{{ item.link }}"> {{ item.title }} </a>
             </td>
             <td>
-                {{ item['price'] }}
+                {{ item.price }}
             </td>
         </tr>
         {% endfor %}
