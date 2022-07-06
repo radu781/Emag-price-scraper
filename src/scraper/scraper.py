@@ -35,6 +35,9 @@ class Scraper(ABC):
     def _get_link(self, soup: BeautifulSoup) -> str:
         ...
 
+    def get_raw_link(self, link: str) -> str:
+        return link.split("?")[0]
+
 
 class ElementNotFoundException(Exception):
     def __init__(self, *args: object) -> None:

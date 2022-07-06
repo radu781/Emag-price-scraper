@@ -97,7 +97,7 @@ class EmagScraper(Scraper):
             return "resources/images/not_found.jpg"
 
         try:
-            return str(img["src"])
+            return self.get_raw_link(str(img["src"]))
         except KeyError:
             raise ElementNotFoundException()
 
@@ -113,4 +113,4 @@ class EmagScraper(Scraper):
 
         if link is None or isinstance(link, NavigableString):
             raise ElementNotFoundException()
-        return str(link["href"])
+        return self.get_raw_link(str(link["href"]))

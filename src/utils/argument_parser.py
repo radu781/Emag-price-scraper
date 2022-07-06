@@ -5,13 +5,14 @@ from dataclasses import dataclass, field
 
 
 class Method(Enum):
-    Get = auto
+    Get = auto()
     Post = auto()
 
 
 class ArgType(Enum):
     Mandatory = auto()
     Optional = auto()
+    Similar = auto()
 
 
 @dataclass(frozen=True, eq=True)
@@ -41,6 +42,10 @@ class ArgumentParser:
                 for arg in self.args:
                     if arg.type == ArgType.Mandatory and not arg.key in self.url.form:
                         not_found.append(arg.key)
+                    elif arg.type == ArgType.Similar:
+                        for item in self.url.form:
+                            if item.find(arg.key) != -1:
+                                out[arg.key] = item.split(arg.key)[1]
                     else:
                         out[arg.key] = self.url.form.get(arg.key, arg.default_value, type=str) 
             case Method.Get:

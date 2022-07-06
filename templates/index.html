@@ -25,6 +25,9 @@
         </div>
         <button type="submit">Search</button>
     </form>
+    <div>
+        <a href="{{ url_for('mine') }}">My tracked items</a>
+    </div>
     {% if links %}
     <p>Found {{ entry_count }} entries</p>
     <table class="table table-borderless table-responsive my-table">
@@ -33,6 +36,7 @@
                 <th>Image</th>
                 <th>Product name</th>
                 <th>Price</th>
+                <th>Tracking</th>
             </tr>
         </thead>
         {% for item in links %}
@@ -45,6 +49,11 @@
             </td>
             <td>
                 {{ item.price }}
+            </td>
+            <td>
+                <form action="/" method="post">
+                    <input type="submit" name="track{{ item.id_ }}" id="item{{ item.id_ }}" value="SET">
+                </form>
             </td>
         </tr>
         {% endfor %}

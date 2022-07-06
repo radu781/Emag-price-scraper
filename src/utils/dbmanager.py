@@ -30,10 +30,11 @@ class DBManager:
         pretty_statement = self._assign(statement, values)
         try:
             self.cursor.execute(pretty_statement)
-            self.connector.commit()
+            if not pretty_statement.split(" ")[0].upper() == "SELECT":
+                self.connector.commit()
             return self.cursor.fetchall()
         except Exception as e:
-            print(e, "statement:", pretty_statement)
+            print(e, "statement:", pretty_statement, sep="\n")
             return []
 
     def execute_multiple(
@@ -52,7 +53,7 @@ class DBManager:
         statement: str,
         values: dict[str, int | str | None],
     ) -> str:
-        out = statement
+        out = statement.replace("\n", " ").replace("\t", " ").replace("  ", " ")
 
         for value in values.keys():
             if isinstance(values[value], int):
