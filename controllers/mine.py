@@ -1,4 +1,4 @@
-from controllers.base import app
+from . import app
 from aioflask import session
 from flask import make_response, render_template, request, Blueprint
 from utils.item_dao import ItemDAO

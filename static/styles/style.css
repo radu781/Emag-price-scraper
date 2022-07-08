@@ -30,6 +30,7 @@ th {
     border-radius: 10px;
     display: inline;
     padding: 3px 10px;
+    border-color: transparent;
 }
 
 .fake-button:hover {
@@ -46,4 +47,16 @@ th {
 footer {
     display: flex;
     justify-content: center;
+}
+
+.navbar {
+    background-color: blue;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.link {
+    text-decoration: none;
+    color: black;
 }

@@ -53,7 +53,7 @@ class ArgumentParser:
                     if arg.type == ArgType.Mandatory and not arg.key in self.url.args:
                         not_found.append(arg.key)
                     else:
-                        out[arg.key] = self.url.args.get(arg.key, arg.default_value, type=str) 
+                        out[arg.key] = self.url.args.get(arg.key, arg.default_value, type=str)
         if not_found != []:
             raise ArgsNotFoundException(not_found)
 

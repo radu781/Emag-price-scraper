@@ -18,7 +18,7 @@ advancedButton.addEventListener("click", () => {
 function toggleAdvancedSearch() {
     const advancedOptions = document.querySelector("#advanced-search-options")
     if (advancedOptionsShown) {
-        advancedOptions.style.display = "inline"
+        advancedOptions.style.display = "flex"
         advancedButton.innerHTML = "Hide advanced"
         showPriceTooltip("#price-min-number", priceMinSlider)
         showPriceTooltip("#price-max-number", priceMaxSlider)

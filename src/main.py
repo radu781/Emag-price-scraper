@@ -1,5 +1,5 @@
 import nest_asyncio
-from controllers.base import app
+from controllers import app
 from controllers.index import index_blueprint
 from controllers.mine import mine_blueprint
 

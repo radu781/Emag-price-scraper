@@ -14,7 +14,45 @@
 
 <body>
     <header>
-        {% block header %} {% endblock %}
+        <div class="navbar">
+            <form action="/" method="get">
+                <div>
+                    <input type="text" name="q" id="user-prompt" placeholder="search...">
+                    <div id="advanced-button" class="fake-button">Show advanced</div>
+                    <button type="submit" class="fake-button">Search</button>
+                </div>
+                <div id="advanced-search-options">
+                    <label for="search-count">Results:</label>
+                    <input type="number" name="search-count" id="search-count">
+                    <div id="price-min-value">
+                        <label for="price-min">Minimum price:</label>
+                        <input type="range" min="0" max="9999" name="price-min" id="price-min">
+                        <div id="price-min-number"> -</div>
+                    </div>
+                    <div id="price-max-value">
+                        <label for="price-max">Maximum price:</label>
+                        <input type="range" min="0" max="9999" name="price-max" id="price-max">
+                        <div id="price-max-number"> </div>
+                    </div>
+                </div>
+            </form>
+            <div>
+                <a href="{{ url_for('mine') }}" class="link fake-button">My tracked items</a>
+            </div>
+            <div class="user-details">{% if user_status == 'OK' %}
+                <div>Welcome, {{ user_email }}</div>
+                {% else %}
+                <div>
+                    {{ user_status }}
+                    <form action="/" method="post">
+                        <input type="text" name="user-name" id="user-name" placeholder="name">
+                        <input type="password" name="user-password" id="user-password" placeholder="password">
+                        <input type="submit" style="display: none" />
+                    </form>
+                </div>
+                {% endif %}
+            </div>
+        </div>
     </header>
     {% block content %} {% endblock %}
     <footer>

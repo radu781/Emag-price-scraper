@@ -3,31 +3,6 @@
 <script src="{{ url_for('static', filename='scripts/url.js') }}" type="module"></script>
 {% endblock %} {% block content %}
 <div class="main">
-    Search on emag:
-    <form action="/" method="get">
-        <div>
-            <input type="text" name="q" id="user-prompt">
-            <div id="advanced-button" class="fake-button">Show advanced</div>
-        </div>
-        <div id="advanced-search-options">
-            <label for="search-count">Results:</label>
-            <input type="number" name="search-count" id="search-count">
-            <div id="price-min-value">
-                <label for="price-min">Minimum price:</label>
-                <input type="range" min="0" max="9999" name="price-min" id="price-min">
-                <div id="price-min-number"> -</div>
-            </div>
-            <div id="price-max-value">
-                <label for="price-max">Maximum price:</label>
-                <input type="range" min="0" max="9999" name="price-max" id="price-max">
-                <div id="price-max-number"> </div>
-            </div>
-        </div>
-        <button type="submit">Search</button>
-    </form>
-    <div>
-        <a href="{{ url_for('mine') }}">My tracked items</a>
-    </div>
     {% if links %}
     <p>Found {{ entry_count }} entries</p>
     <table class="table table-borderless table-responsive my-table">
