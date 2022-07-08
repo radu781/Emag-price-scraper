@@ -19,24 +19,25 @@ class ItemDAO:
         )
 
     @staticmethod
-    def get_all() -> list[Item]:
-        return [
-            Item(str(item[0]), str(item[1]), str(item[2]), str(item[4]), str(item[3]))
-            for item in DBManager().execute("SELECT * FROM emag", {})
-        ]
-
-    @staticmethod
-    def get_tracked_items_by_user(user_id: int) -> list[Tuple[int | str]]:
-        return DBManager().execute(
+    def get_tracked_items_by_user(user_id: int) -> list[Item]:
+        results = DBManager().execute(
             """SELECT
-                 *
+                 e.id,
+                 e.title,
+                 e.link,
+                 e.image,
+                 e.price
                FROM
                  trackings AS t
                  JOIN users AS u ON t.user_id = u.id
                  AND u.id = :user_id
-                 JOIN emag ON emag.id = t.item_id""",
+                 JOIN emag AS e ON e.id = t.item_id""",
             {"user_id": user_id},
         )
+        out: list[Item] = []
+        for item in results:
+            out.append(Item(str(item[1]), item[2], item[4], item[3], item[0]))  # type: ignore
+        return out
 
     @staticmethod
     def add_tracked_item_to_user(item_id: int, user_id: int):

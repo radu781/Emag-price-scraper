@@ -7,5 +7,5 @@ class Item:
     link: str
     price: str
     image: str
-    id_: str = field(default="-1")
+    id_: int = field(default=-1)
     tracking: bool = field(init=False, default=False)
