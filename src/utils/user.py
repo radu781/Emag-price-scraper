@@ -22,10 +22,14 @@ class User:
                 return User.Status.NameMismatch
             return User.Status.PasswordMismatch
 
+    class Permission(Enum):
+        RefreshSearches = 2**0
+
     name: str
     password: str | None
     id_: int = field(default=-1)
     status: Status = field(default=Status.LoggedOut)
+    permissions: int = field(default=0)
 
     def __post_init__(self) -> None:
         if isinstance(self.password, str):
@@ -33,4 +37,14 @@ class User:
 
     @property
     def ok(self) -> bool:
-        return self.status not in [User.Status.NameMismatch, User.Status.PasswordMismatch]
+        return self.status not in [
+            User.Status.NameMismatch,
+            User.Status.PasswordMismatch,
+        ]
+
+    def has_permission(self, value: int) -> bool:
+        return self.permissions & value == value
+
+    @property
+    def can_refresh(self) -> bool:
+        return self.has_permission(User.Permission.RefreshSearches.value)

@@ -66,4 +66,4 @@ class UserDAO:
                 "id": id_,
             },
         )
-        return User(str(result[0][1]), None, id_)
+        return User(str(result[0][1]), None, id_, permissions=int(result[0][3]))

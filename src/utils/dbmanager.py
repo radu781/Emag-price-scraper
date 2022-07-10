@@ -59,7 +59,11 @@ class DBManager:
             if isinstance(values[value], int):
                 prepared_value = str(values[value])
             elif isinstance(values[value], str):
-                prepared_value = f"'{values[value]}'"
+                if out[out.index(f":{value}") - 1] == "%":
+                    prepared_value = f"'%{values[value]}%'"
+                    out = out.replace(f"%:{value}%",  f":{value}")
+                else:
+                    prepared_value = f"'{values[value]}'"
             else:
                 prepared_value = "NULL"
             out = out.replace(f":{value}", prepared_value)

@@ -38,6 +38,12 @@
                         <input type="range" min="0" max="9999" name="price-max" id="price-max">
                         <div id="price-max-number">-</div>
                     </div>
+                    {% if user.ok and user.can_refresh %}
+                    <div>
+                        <label for="refresh-items">Refresh search</label>
+                        <input type="checkbox" name="refresh-items" id="refresh-items">
+                    </div>
+                    {% endif %}
                 </div>
             </form>
             <div>

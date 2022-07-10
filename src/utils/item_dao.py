@@ -19,6 +19,27 @@ class ItemDAO:
         )
 
     @staticmethod
+    def get_matching_items(keyword: str, user: User) -> list[Item]:
+        results = DBManager().execute(
+            "SELECT * FROM emag WHERE title LIKE %:keyword%", {"keyword": keyword}
+        )
+        out: list[Item] = []
+        for sub_item in results:
+            out.append(Item.from_database_columns(sub_item))
+        out = ItemDAO.add_tracking(out, user)
+        return out
+
+    @staticmethod
+    def add_id(item: Item) -> list[Item]:
+        results = DBManager().execute(
+            "SELECT * FROM emag WHERE link = :link", {"link": item.link}
+        )
+        out: list[Item] = []
+        for sub_item in results:
+            out.append(Item.from_database_columns(sub_item))
+        return out
+
+    @staticmethod
     def get_tracked_items_by_user(user_id: int) -> list[Item]:
         results = DBManager().execute(
             """SELECT
@@ -40,6 +61,15 @@ class ItemDAO:
         return out
 
     @staticmethod
+    def add_tracking(items: list[Item], user: User) -> list[Item]:
+        results = ItemDAO.get_tracked_items_by_user(user.id_)
+        for item in items:
+            if item in results:
+                item.tracking = True
+
+        return items
+
+    @staticmethod
     def add_tracked_item_to_user(item_id: int, user_id: int):
         DBManager().execute(
             """INSERT INTO
@@ -59,22 +89,3 @@ class ItemDAO:
                   AND t.item_id = :item_id""",
             {"item_id": item_id, "user_id": user_id},
         )
-
-    @staticmethod
-    def add_id(item: Item) -> list[Item]:
-        results = DBManager().execute(
-            "SELECT * FROM emag WHERE link = :link", {"link": item.link}
-        )
-        out: list[Item] = []
-        for sub_item in results:
-            out.append(Item(str(sub_item[1]), str(sub_item[2]), str(sub_item[4]), str(sub_item[3]), int(sub_item[0])))
-        return out
-
-    @staticmethod
-    def add_tracking(items: list[Item], user: User) -> list[Item]:
-        results = ItemDAO.get_tracked_items_by_user(user.id_)
-        for item in items:
-            if item in results:
-                item.tracking = True
-
-        return items
