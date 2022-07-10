@@ -1,7 +1,4 @@
-{% extends "base.html" %} {% block title %} Main page {% endblock %} {% block scripts %}
-<script src="{{ url_for('static', filename='scripts/index.js') }}" type="module"></script>
-<script src="{{ url_for('static', filename='scripts/url.js') }}" type="module"></script>
-{% endblock %} {% block content %}
+{% extends "base.html" %} {% block title %} Main page {% endblock %} {% block scripts %} {% endblock %} {% block content %}
 <div class="main">
     {% if links %}
     <p>Found {{ entry_count }} entries</p>
@@ -26,8 +23,10 @@
                 {{ item.price }}
             </td>
             <td>
-                <form action="/" method="post">
-                    <input type="submit" name="track{{ item.id_ }}" id="item{{ item.id_ }}" value="SET">
+                <form action="{{ url_for('track_item_blueprint.track_item') }}" method="post">
+                    {% if item.tracking %}
+                    <input type="image" src="{{ url_for('static', filename='images/checkbox_on.svg') }}" alt="tracking" name="unset{{ item.id_ }}" id="item{{ item.id_ }}"> {% else %}
+                    <input type="image" src="{{ url_for('static', filename='images/checkbox_off.svg') }}" alt="not tracking" name="set{{ item.id_ }}" id="item{{ item.id_ }}"> {% endif %}
                 </form>
             </td>
         </tr>

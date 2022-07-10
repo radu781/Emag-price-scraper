@@ -24,13 +24,15 @@
                 {{ item.price }}
             </td>
             <td>
-                <form action="/" method="post">
-                    <input type="submit" name="track{{ item.id_ }}" id="item{{ item.id_ }}" value="SET">
+                <form action="{{ url_for('track_item_blueprint.track_item') }}" method="post">
+                    <input type="image" src="{{ url_for('static', filename='images/checkbox_on.svg') }}" alt="tracking" name="unset{{ item.id_ }}" id="item{{ item.id_ }}">
                 </form>
             </td>
         </tr>
         {% endfor %}
     </table>
-    {%endif %}
+    {% else %}
+    <p>Click on the checkbox next to an item to add it here</p>
+    {% endif %}
 </div>
 {% endblock %}

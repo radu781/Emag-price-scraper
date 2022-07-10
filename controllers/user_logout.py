@@ -19,4 +19,5 @@ def user_logout():
         values = parser.get_values()
         if values["logout"] == "logout":
             session.pop("user_id", None)
+            session.pop("user_status", None)
             return redirect("/")

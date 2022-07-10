@@ -1,6 +1,7 @@
 import asyncio
 from aioflask import session
 from flask import Blueprint, make_response, render_template, request
+from flask.wrappers import Response
 
 from . import _get_current_user
 from scraper.emag_scraper import EmagScraper
@@ -14,7 +15,7 @@ index_blueprint = Blueprint("index_blueprint", __name__)
 
 
 @index_blueprint.route("/", methods=["GET", "POST"])
-async def index():
+async def index() -> Response:
     if request.method == "GET":
         parser = ArgumentParser(
             request,
@@ -27,47 +28,41 @@ async def index():
         )
 
         current_user = _get_current_user(session)
+        current_user.status = User.Status.from_value(session.get("user_status", 3))
 
         values = parser.get_values()
         if values["q"] is None:
-            return render_template("index.html", user=current_user)
+            return make_response(render_template("index.html", user=current_user))
 
         results = await __search_items(values)
+        results = ItemDAO.add_tracking(results, current_user)
 
-        template = render_template(
-            "index.html",
-            links=results,
-            entry_count=len(results),
-            user=current_user,
+        return make_response(
+            render_template(
+                "index.html",
+                links=results,
+                entry_count=len(results),
+                user=current_user,
+            )
         )
-        response = make_response(template)
-        return response
     elif request.method == "POST":
         parser = ArgumentParser(
             request,
             {
-                # Argument("track", ArgType.Similar, None),
-                Argument("user-name", ArgType.Optional, None),
-                Argument("user-password", ArgType.Optional, None),
+                Argument("track", ArgType.Prefix, None),
             },
             Method.Post,
         )
         values = parser.get_values()
-        # ItemDAO.add_tracked_item_to_user(
-        #     int(values["track"]), int(session.get("user_id", -1))
-        # )
-        current_user = User(values["user-name"], values["user-password"])
-        current_user = __get_user_status(current_user)
-        user_id = UserDAO.get_user_id(current_user)
-        if user_id != -1:
-            session["user_id"] = user_id
-            current_user.id_ = user_id
-            return render_template("index.html", user=current_user)
-        template = render_template("index.html", user=None)
+        current_user = _get_current_user(session)
+        ItemDAO.add_tracked_item_to_user(int(values["track"]), current_user.id_)
+        template = render_template("mine.html", user=current_user)
         return make_response(template)
 
+    return make_response(render_template("index.html"))
 
-async def __search_items(values):
+
+async def __search_items(values: dict[str, str]) -> list[Item]:
     scraper = EmagScraper(
         "https://www.emag.ro/search/", values["q"], int(values["search-count"])
     )
@@ -83,7 +78,7 @@ async def __search_items(values):
 
 
 def __get_user_status(user: User) -> User:
-    user.status = User.Status.LoggedOut
+    user.status = User.Status.LoggedIn
 
     if not UserDAO.exists(user):
         user.status = User.Status.NameMismatch

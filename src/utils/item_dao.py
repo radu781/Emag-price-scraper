@@ -1,5 +1,6 @@
 from scraper.item import Item
 from utils.dbmanager import DBManager
+from utils.user import User
 
 
 class ItemDAO:
@@ -40,11 +41,22 @@ class ItemDAO:
 
     @staticmethod
     def add_tracked_item_to_user(item_id: int, user_id: int):
-        return DBManager().execute(
+        DBManager().execute(
             """INSERT INTO
                  trackings(user_id, item_id)
                VALUES
                (:user_id, :item_id)""",
+            {"item_id": item_id, "user_id": user_id},
+        )
+
+    @staticmethod
+    def remove_tracked_item_from_user(item_id: int, user_id: int):
+        DBManager().execute(
+            """DELETE FROM
+                  trackings AS t
+                WHERE
+                  t.user_id = :user_id
+                  AND t.item_id = :item_id""",
             {"item_id": item_id, "user_id": user_id},
         )
 
@@ -54,6 +66,15 @@ class ItemDAO:
             "SELECT * FROM emag WHERE link = :link", {"link": item.link}
         )
         out: list[Item] = []
-        for item in results:
-            out.append(Item(item[1], item[2], item[4], item[3], item[0]))
+        for sub_item in results:
+            out.append(Item(str(sub_item[1]), str(sub_item[2]), str(sub_item[4]), str(sub_item[3]), int(sub_item[0])))
         return out
+
+    @staticmethod
+    def add_tracking(items: list[Item], user: User) -> list[Item]:
+        results = ItemDAO.get_tracked_items_by_user(user.id_)
+        for item in items:
+            if item in results:
+                item.tracking = True
+
+        return items

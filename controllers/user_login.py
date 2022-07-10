@@ -20,6 +20,9 @@ def user_login():
             Method.Post,
         )
         values = parser.get_values()
-        user_id = UserDAO.get_user_id(User(values["user-name"], values["user-password"]))
-        session["user_id"] = user_id
+        current_user = UserDAO.log_user_in(
+            User(values["user-name"], values["user-password"])
+        )
+        session["user_id"] = current_user.id_
+        session["user_status"] = current_user.status.value
         return redirect("/")

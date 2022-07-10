@@ -12,7 +12,7 @@ class Method(Enum):
 class ArgType(Enum):
     Mandatory = auto()
     Optional = auto()
-    Similar = auto()
+    Prefix = auto()
 
 
 @dataclass(frozen=True, eq=True)
@@ -42,7 +42,7 @@ class ArgumentParser:
                 for arg in self.args:
                     if arg.type == ArgType.Mandatory and not arg.key in self.url.form:
                         not_found.append(arg.key)
-                    elif arg.type == ArgType.Similar:
+                    elif arg.type == ArgType.Prefix:
                         for item in self.url.form:
                             if item.find(arg.key) != -1:
                                 out[arg.key] = item.split(arg.key)[1]

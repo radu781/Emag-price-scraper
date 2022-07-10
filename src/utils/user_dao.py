@@ -1,6 +1,5 @@
 from utils.dbmanager import DBManager
 from utils.user import User
-from hashlib import sha256
 
 
 class UserDAO:
@@ -33,7 +32,7 @@ class UserDAO:
         return len(result) > 0
 
     @staticmethod
-    def get_user_id(user: User) -> int:
+    def log_user_in(user: User) -> User:
         result = DBManager().execute(
             "SELECT * FROM users WHERE name=:name AND password=:password",
             {
@@ -42,8 +41,22 @@ class UserDAO:
             },
         )
         if result != []:
-            return int(result[0][0])
-        return -1
+            user.id_ = int(result[0][0])
+            user.status = User.Status.LoggedIn
+            return user
+
+        result = DBManager().execute(
+            "SELECT * FROM users WHERE name=:name",
+            {
+                "name": user.name,
+            },
+        )
+        if result != []:
+            user.status = User.Status.PasswordMismatch
+            return user
+
+        user.status = User.Status.NameMismatch
+        return user
 
     @staticmethod
     def get_user(id_: int) -> User:
