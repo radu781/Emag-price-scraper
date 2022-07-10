@@ -8,7 +8,6 @@ const priceMaxSlider = document.querySelector("#price-max")
 setFormFieldsFromUrl()
 
 let advancedOptionsShown = searchCount.value !== "" || priceMinSlider.value != 0 || priceMaxSlider.value != 0
-console.log(searchCount.value, priceMinSlider.value, priceMaxSlider.value, advancedOptionsShown)
 toggleAdvancedSearch()
 
 advancedButton.addEventListener("click", () => {

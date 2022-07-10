@@ -41,7 +41,9 @@ class UserDAO:
                 "password": user.password,
             },
         )
-        return int(result[0][0])
+        if result != []:
+            return int(result[0][0])
+        return -1
 
     @staticmethod
     def get_user(id_: int) -> User:
@@ -51,4 +53,4 @@ class UserDAO:
                 "id": id_,
             },
         )
-        return User(str(result[0][1]), "", id_)
+        return User(str(result[0][1]), None, id_)

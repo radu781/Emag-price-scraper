@@ -39,15 +39,22 @@
             <div>
                 <a href="{{ url_for('mine') }}" class="link fake-button">My tracked items</a>
             </div>
-            <div class="user-details">{% if user_status == 'OK' %}
-                <div>Welcome, {{ user_email }}</div>
+            <div class="user-details">{% if user != None %}
+                <div>
+                    <p>
+                        Welcome, {{ user.name }}
+                    </p>
+                    <form action="/" method="post">
+                        <input type="submit" name="logout" value="logout">
+                    </form>
+                </div>
                 {% else %}
                 <div>
-                    {{ user_status }}
+                    {{ user }}
                     <form action="/" method="post">
-                        <input type="text" name="user-name" id="user-name" placeholder="name">
-                        <input type="password" name="user-password" id="user-password" placeholder="password">
-                        <input type="submit" style="display: none" />
+                        <input type="text" name="user-name" id="user-name" placeholder="name" required>
+                        <input type="password" name="user-password" id="user-password" placeholder="password" required>
+                        <input type="submit" style="display: none">
                     </form>
                 </div>
                 {% endif %}
