@@ -47,13 +47,15 @@ class ArgumentParser:
                             if item.find(arg.key) != -1:
                                 out[arg.key] = item.split(arg.key)[1]
                     else:
-                        out[arg.key] = self.url.form.get(arg.key, arg.default_value, type=str) 
+                        out[arg.key] = self.url.form.get(arg.key, arg.default_value, type=str)
             case Method.Get:
                 for arg in self.args:
                     if arg.type == ArgType.Mandatory and not arg.key in self.url.args:
                         not_found.append(arg.key)
                     else:
                         out[arg.key] = self.url.args.get(arg.key, arg.default_value, type=str)
+                        if out[arg.key] == "":
+                            out[arg.key] = arg.default_value
         if not_found != []:
             raise ArgsNotFoundException(not_found)
 
