@@ -20,4 +20,4 @@ def user_logout():
         if values["logout"] == "logout":
             session.pop("user_id", None)
             session.pop("user_status", None)
-            return redirect("/")
+            return redirect(session["last_page"])

@@ -1,3 +1,4 @@
+import datetime
 from scraper.item import Item
 from utils.dbmanager import DBManager
 from utils.user import User
@@ -7,15 +8,34 @@ class ItemDAO:
     @staticmethod
     def insert(item: Item) -> None:
         DBManager().execute(
-            "INSERT INTO emag(title, link, image, price) VALUES(:title, :link, :image, :price)",
+            "INSERT INTO emag(id, title, link, image) VALUES(:id_, :title, :link, :image)",
             vars(item),
         )
 
     @staticmethod
     def insert_multiple(items: list[Item]) -> None:
         DBManager().execute_multiple(
-            "INSERT INTO emag(title, link, image, price) VALUES(:title, :link, :image, :price)",
-            [vars(item) for item in items],
+            "INSERT INTO emag(id, title, link, image) VALUES(:id, :title, :link, :image)",
+            [
+                {
+                    "id": item.id_,
+                    "title": item.title,
+                    "link": item.link,
+                    "image": item.image,
+                }
+                for item in items
+            ],
+        )
+        DBManager().execute_multiple(
+            "INSERT INTO prices(item_id, price, date) values(:item_id, :price, :date)",
+            [
+                {
+                    "item_id": item.id_,
+                    "price": item.price,
+                    "date": str(datetime.datetime.now()),
+                }
+                for item in items
+            ],
         )
 
     @staticmethod
@@ -25,34 +45,36 @@ class ItemDAO:
         )
         out: list[Item] = []
         for sub_item in results:
-            out.append(Item.from_database_columns(sub_item))
+            out.append(ItemDAO.add_price(Item.from_database_columns(sub_item)))
         out = ItemDAO.add_tracking(out, user)
         return out
 
     @staticmethod
-    def add_id(item: Item) -> list[Item]:
+    def add_id(item: Item) -> Item:
         results = DBManager().execute(
             "SELECT * FROM emag WHERE link = :link", {"link": item.link}
         )
-        out: list[Item] = []
-        for sub_item in results:
-            out.append(Item.from_database_columns(sub_item))
-        return out
+        item_no_price = Item.from_database_columns(results[0])
+        return item_no_price
 
     @staticmethod
     def get_tracked_items_by_user(user_id: int) -> list[Item]:
         results = DBManager().execute(
-            """SELECT
+            """SELECT * FROM (SELECT
                  e.id,
                  e.title,
                  e.link,
                  e.image,
-                 e.price
+                 p.price
                FROM
                  trackings AS t
                  JOIN users AS u ON t.user_id = u.id
                  AND u.id = :user_id
-                 JOIN emag AS e ON e.id = t.item_id""",
+                 JOIN emag AS e ON e.id = t.item_id
+                 JOIN prices AS p on p.item_id = t.item_id
+               ORDER BY
+                 p.date DESC) AS inn
+                 GROUP BY inn.id""",
             {"user_id": user_id},
         )
         out: list[Item] = []
@@ -70,7 +92,7 @@ class ItemDAO:
         return items
 
     @staticmethod
-    def add_tracked_item_to_user(item_id: int, user_id: int):
+    def add_tracked_item_to_user(item_id: str, user_id: int):
         DBManager().execute(
             """INSERT INTO
                  trackings(user_id, item_id)
@@ -80,7 +102,7 @@ class ItemDAO:
         )
 
     @staticmethod
-    def remove_tracked_item_from_user(item_id: int, user_id: int):
+    def remove_tracked_item_from_user(item_id: str, user_id: int):
         DBManager().execute(
             """DELETE FROM
                   trackings AS t
@@ -89,3 +111,24 @@ class ItemDAO:
                   AND t.item_id = :item_id""",
             {"item_id": item_id, "user_id": user_id},
         )
+
+    @staticmethod
+    def get_all_prices(item_id: str) -> list[dict[str, str]]:
+        result = DBManager().execute(
+            """SELECT price, date FROM prices WHERE item_id=:item_id
+            """,
+            {"item_id": item_id},
+        )
+        out: list[dict[str, str]] = []
+        for item in result:
+            out.append({"price": str(item[0]), "date": str(item[1])})
+        return out
+
+    @staticmethod
+    def add_price(item: Item) -> Item:
+        results = DBManager().execute(
+            """SELECT price FROM prices WHERE item_id=:item_id ORDER BY date DESC""",
+            {"item_id": item.id_},
+        )
+        item.price = str(results[0][0])
+        return item

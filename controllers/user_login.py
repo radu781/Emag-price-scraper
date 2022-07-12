@@ -25,4 +25,4 @@ def user_login():
         )
         session["user_id"] = current_user.id_
         session["user_status"] = current_user.status.value
-        return redirect("/")
+        return redirect(session["last_page"])

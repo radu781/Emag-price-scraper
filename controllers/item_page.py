@@ -3,18 +3,18 @@ from aioflask import session
 from flask import make_response, render_template, Blueprint
 from utils.item_dao import ItemDAO
 
-mine_blueprint = Blueprint("mine_blueprint", __name__)
+item_page_blueprint = Blueprint("item_page_blueprint", __name__)
 
 
-@mine_blueprint.route("/mine")
-def mine():
-    session["last_page"] = "/mine"
+@item_page_blueprint.route("/item/<item_id>")
+def item_page(item_id: str):
+    session["last_page"] = "/item"
     current_user = _get_current_user(session)
     if current_user is None:
         return "broken"
-    results = ItemDAO.get_tracked_items_by_user(current_user.id_)
+    results = ItemDAO.get_all_prices(item_id)
     return make_response(
         render_template(
-            "mine.html", links=results, entry_count=len(results), user=current_user
+            "item.html", links=results, entry_count=len(results), user=current_user
         )
     )

@@ -26,7 +26,7 @@ class DBManager:
 
     def execute(
         self, statement: str, values: dict[str, int | str | None]
-    ) -> list[tuple[int | str]]:
+    ) -> list[tuple]:
         pretty_statement = self._assign(statement, values)
         try:
             self.cursor.execute(pretty_statement)
@@ -59,9 +59,10 @@ class DBManager:
             if isinstance(values[value], int):
                 prepared_value = str(values[value])
             elif isinstance(values[value], str):
-                if out[out.index(f":{value}") - 1] == "%":
+                percentage = out.index(f":{value}") - 1
+                if percentage >= 0 and out[percentage] == "%":
                     prepared_value = f"'%{values[value]}%'"
-                    out = out.replace(f"%:{value}%",  f":{value}")
+                    out = out.replace(f"%:{value}%", f":{value}")
                 else:
                     prepared_value = f"'{values[value]}'"
             else:

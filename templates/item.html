@@ -1,0 +1,11 @@
+{% extends "base.html" %} {% block title %} Item {% endblock %} {% block content %}
+<div class="main">working
+    <p>
+        {% for item in links %}
+        <p>price: {{ item["price"] }}</p>
+        <p>date: {{ item["date"] }}</p>
+        <p>+++</p>
+        {% endfor %}
+    </p>
+</div>
+{% endblock %}

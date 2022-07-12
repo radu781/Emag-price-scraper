@@ -17,6 +17,7 @@ index_blueprint = Blueprint("index_blueprint", __name__)
 @index_blueprint.route("/", methods=["GET", "POST"])
 async def index() -> Response:
     if request.method == "GET":
+        session["last_page"] = "/"
         parser = ArgumentParser(
             request,
             {
@@ -60,7 +61,7 @@ async def index() -> Response:
         )
         values = parser.get_values()
         current_user = _get_current_user(session)
-        ItemDAO.add_tracked_item_to_user(int(values["track"]), current_user.id_)
+        ItemDAO.add_tracked_item_to_user(values["track"], current_user.id_)
         template = render_template("mine.html", user=current_user)
         return make_response(template)
 
@@ -76,12 +77,7 @@ async def __scrape_items(request_values: dict[str, str]) -> list[Item]:
     results = await asyncio.create_task(scraper.get_results())
 
     ItemDAO.insert_multiple(results)
-    completed: list[Item] = []
-    for result in results:
-        for item in ItemDAO.add_id(result):
-            completed.append(item)
-
-    return completed
+    return results
 
 
 def __database_items(request_values: dict[str, str], user: User) -> list[Item]:

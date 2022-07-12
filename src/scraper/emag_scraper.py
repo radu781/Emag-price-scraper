@@ -1,5 +1,6 @@
 import asyncio
 from dataclasses import dataclass, field
+import random
 from bs4 import BeautifulSoup
 from bs4.element import Tag, NavigableString
 from scraper.item import Item
@@ -72,6 +73,7 @@ class EmagScraper(Scraper):
                                 self._get_link(card),
                                 self._get_price(card),
                                 self._get_image(card),
+                                random.randbytes(64).hex()
                             )
                         )
                     except ElementNotFoundException:
