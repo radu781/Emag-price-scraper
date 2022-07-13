@@ -17,7 +17,7 @@ index_blueprint = Blueprint("index_blueprint", __name__)
 @index_blueprint.route("/", methods=["GET", "POST"])
 async def index() -> Response:
     if request.method == "GET":
-        session["last_page"] = "/"
+        session["last_page"] = request.url
         parser = ArgumentParser(
             request,
             {

@@ -1,11 +1,21 @@
 {% extends "base.html" %} {% block title %} Item {% endblock %} {% block content %}
-<div class="main">working
-    <p>
-        {% for item in links %}
-        <p>price: {{ item["price"] }}</p>
-        <p>date: {{ item["date"] }}</p>
-        <p>+++</p>
-        {% endfor %}
-    </p>
+<div class="main">
+    <div class="inner">
+        <div class="side"><img src="{{ image }}" alt=""></div>
+        <div class="prices">
+            <div class="graph">
+                {% for item in links %} {% set raw_price_string = item.price.split(' Lei')[0].replace(',', '.') %} {% set raw_price = (raw_price_string|int)*100//100 %}
+                <div class="graph-bar" style="height: {{ raw_price * 10 }}px;">
+                    <p>
+                        {{ item.price }}
+                    </p>
+                    <p>
+                        {{ item.date[:10] }}
+                    </p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}

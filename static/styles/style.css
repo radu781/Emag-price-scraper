@@ -8,6 +8,10 @@
     margin: 0 5%;
 }
 
+.inner {
+    display: flex;
+}
+
 .links {
     display: flex;
     flex-direction: column;
@@ -67,4 +71,38 @@ footer {
 
 form {
     display: inline;
+}
+
+.graph-bar {
+    background-color: red;
+    padding: 6px;
+    margin: 6px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.graph {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-end;
+    word-spacing: 10;
+}
+
+.my-table {
+    background-color: #87aab4;
+    border-radius: 10px;
+}
+
+thead {
+    background-color: #e1bef3;
+}
+
+tr:nth-child(even) {
+    background-color: #96c4d3;
+}
+
+.side>img,
+.side {
+    width: 50%;
 }

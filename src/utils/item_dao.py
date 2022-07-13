@@ -116,6 +116,7 @@ class ItemDAO:
     def get_all_prices(item_id: str) -> list[dict[str, str]]:
         result = DBManager().execute(
             """SELECT price, date FROM prices WHERE item_id=:item_id
+            ORDER BY date ASC
             """,
             {"item_id": item_id},
         )
@@ -132,3 +133,9 @@ class ItemDAO:
         )
         item.price = str(results[0][0])
         return item
+
+    @staticmethod
+    def get_image(item_id: str) -> str:
+        return DBManager().execute(
+            "SELECT image FROM emag WHERE id=:id", {"id": item_id}
+        )[0][0]

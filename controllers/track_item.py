@@ -27,11 +27,11 @@ def track_item():
                 ItemDAO.remove_tracked_item_from_user(
                     values["unset"], session["user_id"]
                 )
-                return redirect("/mine")
+                return redirect(session["last_page"])
             elif "set" in values:
                 values["set"] = values["set"].replace(".x", "").replace(".y", "")
                 ItemDAO.add_tracked_item_to_user(values["set"], session["user_id"])
-                return redirect("/mine")
+                return redirect(session["last_page"])
             else:
                 return "fail"
         else:
