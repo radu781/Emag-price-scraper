@@ -1,12 +1,15 @@
 from __future__ import annotations
 from dataclasses import dataclass, field
-from enum import Enum, auto
+from enum import Enum, auto, IntEnum
 from hashlib import sha256
+from typing import Any
+
+from controllers.user_logout import user_logout
 
 
-@dataclass
+@dataclass(unsafe_hash=True)
 class User:
-    class Status(Enum):
+    class Status(IntEnum):
         LoggedIn = auto()
         LoggedOut = auto()
         NameMismatch = auto()
@@ -48,3 +51,13 @@ class User:
     @property
     def can_refresh(self) -> bool:
         return self.has_permission(User.Permission.RefreshSearches.value)
+
+    @staticmethod
+    def from_dict(d: dict[str, Any]) -> User:
+        return User(
+            name=d["name"],
+            password=d["password"],
+            id_=d["id_"],
+            status=d["status"],
+            permissions=d["permissions"],
+        )

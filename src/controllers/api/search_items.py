@@ -1,21 +1,20 @@
 import asyncio
 from aioflask import session
-from flask import Blueprint, make_response, render_template, request
+from flask import Blueprint, make_response, render_template, request, jsonify
 from flask.wrappers import Response
 
-from . import _get_current_user
+from controllers import _get_current_user
 from scraper.emag_scraper import EmagScraper
 from scraper.item import Item
 from utils.argument_parser import *
 from utils.item_dao import ItemDAO
 from utils.user import User
-from utils.user_dao import UserDAO
 
-index_blueprint = Blueprint("index_blueprint", __name__)
+search_api = Blueprint("search_api", __name__)
 
 
-@index_blueprint.route("/", methods=["GET", "POST"])
-async def index() -> Response:
+@search_api.route("/api/search", methods=["GET", "POST"])
+async def search() -> Response:
     if request.method == "GET":
         session["last_page"] = request.url
         parser = ArgumentParser(
@@ -31,26 +30,20 @@ async def index() -> Response:
 
         current_user = _get_current_user(session)
         current_user.status = User.Status.from_value(session.get("user_status", 3))
-
         values = parser.get_values()
         if values["q"] is None:
-            return make_response(render_template("index.html", user=current_user))
+            return make_response(vars(current_user))
 
         if values["refresh-items"] == "on" and current_user.can_refresh:
-            results = await __scrape_items(values)
+            results = await _scrape_items(values)
             results = ItemDAO.add_tracking(results, current_user)
             ItemDAO.insert_multiple(results)
         else:
-            results = __database_items(values, current_user)
+            results = _database_items(values, current_user)
 
-        return make_response(
-            render_template(
-                "index.html",
-                links=results,
-                entry_count=len(results),
-                user=current_user,
-            )
-        )
+        out = {i: item for i, item in enumerate(results)}
+        ret = {"data": out, "user": current_user}
+        return make_response(jsonify(ret))
     elif request.method == "POST":
         parser = ArgumentParser(
             request,
@@ -68,7 +61,7 @@ async def index() -> Response:
     return make_response(render_template("index.html"))
 
 
-async def __scrape_items(request_values: dict[str, str]) -> list[Item]:
+async def _scrape_items(request_values: dict[str, str]) -> list[Item]:
     scraper = EmagScraper(
         "https://www.emag.ro/search/",
         request_values["q"],
@@ -80,16 +73,5 @@ async def __scrape_items(request_values: dict[str, str]) -> list[Item]:
     return results
 
 
-def __database_items(request_values: dict[str, str], user: User) -> list[Item]:
+def _database_items(request_values: dict[str, str], user: User) -> list[Item]:
     return ItemDAO.get_matching_items(request_values["q"], user)
-
-
-def __get_user_status(user: User) -> User:
-    user.status = User.Status.LoggedIn
-
-    if not UserDAO.exists(user):
-        user.status = User.Status.NameMismatch
-    if not UserDAO.correct_credentials(user):
-        user.status = User.Status.PasswordMismatch
-
-    return user

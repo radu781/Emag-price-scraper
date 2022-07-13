@@ -7,7 +7,7 @@ from utils.user_dao import UserDAO
 ini_file = ConfigParser()
 ini_file.read("config/data.ini")
 
-app = Flask(__name__, template_folder="../templates", static_folder="../static")
+app = Flask(__name__, template_folder="../../templates", static_folder="../../static")
 app.config["SECRET_KEY"] = ini_file.get("pages", "key")
 app.config["SESSION_TYPE"] = "SameSite"
 app.config["SESSION_COOKIE_PATH"] = "/"
