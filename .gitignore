@@ -1,5 +1,6 @@
 flask_session
 *cache*
-.vscode/
+.vscode/*
+!.vscode/launch.json
 *.ini
 !*.example.ini

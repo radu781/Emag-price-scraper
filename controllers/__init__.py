@@ -5,7 +5,7 @@ from utils.user import User
 from utils.user_dao import UserDAO
 
 ini_file = ConfigParser()
-ini_file.read("config/pages.ini")
+ini_file.read("config/data.ini")
 
 app = Flask(__name__, template_folder="../templates", static_folder="../static")
 app.config["SECRET_KEY"] = ini_file.get("pages", "key")

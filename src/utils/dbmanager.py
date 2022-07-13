@@ -14,7 +14,7 @@ class DBManager:
 
     def __post_init__(self) -> None:
         ini_file = ConfigParser()
-        ini_file.read("config/database.ini")
+        ini_file.read("config/data.ini")
         self.connector: connection.CMySQLConnection = con.connect(
             database=ini_file.get("database", "schema"),
             user=ini_file.get("database", "username"),
