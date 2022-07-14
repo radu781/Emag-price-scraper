@@ -1,23 +1,18 @@
 from aioflask import session
-from flask import request, Blueprint, redirect
+from flask import request, Blueprint, jsonify
+from flask.wrappers import Response
 
 from utils.argument_parser import *
+from . import _get_current_user
 
 user_logout_blueprint = Blueprint("user_logout_blueprint", __name__)
 
 
-@user_logout_blueprint.route("/logout", methods=["POST"])
-def user_logout():
+@user_logout_blueprint.route("/api/logout", methods=["POST"])
+def logout() -> Response:
     if request.method == "POST":
-        parser = ArgumentParser(
-            request,
-            {
-                Argument("logout", ArgType.Mandatory, None),
-            },
-            Method.Post,
-        )
-        values = parser.get_values()
-        if values["logout"] == "logout":
-            session.pop("user_id", None)
-            session.pop("user_status", None)
-            return redirect(session["last_page"])
+        session.pop("user_id", None)
+        session.pop("user_status", None)
+        return jsonify({"status": "success", "user": _get_current_user(session)})
+
+    return Response()

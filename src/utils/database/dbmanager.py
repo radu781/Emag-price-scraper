@@ -27,7 +27,7 @@ class DBManager:
     def execute(
         self, statement: str, values: dict[str, int | str | None]
     ) -> list[tuple]:
-        pretty_statement = self._assign(statement, values)
+        pretty_statement = self.__assign(statement, values)
         try:
             self.cursor.execute(pretty_statement)
             if not pretty_statement.split(" ")[0].upper() == "SELECT":
@@ -42,13 +42,13 @@ class DBManager:
     ) -> list[list[tuple[int | str]]]:
         out: list[list[tuple[int | str]]] = []
 
-        pretty_statements = self._assign_multiple(statement, values)
+        pretty_statements = self.__assign_multiple(statement, values)
         for item in pretty_statements:
             out.append(self.execute(item, {}))
 
         return out
 
-    def _assign(
+    def __assign(
         self,
         statement: str,
         values: dict[str, int | str | None],
@@ -71,7 +71,7 @@ class DBManager:
 
         return out
 
-    def _assign_multiple(
+    def __assign_multiple(
         self,
         statement: str,
         values: list[dict[str, int | str | None]],
@@ -79,6 +79,6 @@ class DBManager:
         out: list[str] = []
 
         for line in values:
-            out.append(self._assign(statement, line))
+            out.append(self.__assign(statement, line))
 
         return out

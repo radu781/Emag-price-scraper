@@ -4,8 +4,6 @@ from enum import Enum, auto, IntEnum
 from hashlib import sha256
 from typing import Any
 
-from controllers.user_logout import user_logout
-
 
 @dataclass(unsafe_hash=True)
 class User:
@@ -31,7 +29,7 @@ class User:
     name: str
     password: str | None
     id_: int = field(default=-1)
-    status: Status = field(default=Status.LoggedOut)
+    status: Status = field(default=Status.LoggedIn)
     permissions: int = field(default=0)
 
     def __post_init__(self) -> None:

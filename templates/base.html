@@ -54,14 +54,14 @@
                     <p>
                         Welcome, {{ user.name }}
                     </p>
-                    <form action="{{ url_for('user_logout_blueprint.user_logout') }}" method="post">
-                        <input type="submit" name="logout" value="logout">
+                    <form action="{{ url_for('user_logout_view_blueprint.user_logout') }}" method="post">
+                        <input type="submit" value="Logout">
                     </form>
                 </div>
                 {% else %}
                 <div>
                     {{ user.status }}
-                    <form action="{{ url_for('user_login_blueprint.user_login') }}" method="post">
+                    <form action="{{ url_for('user_login_view_blueprint.user_login') }}" method="post">
                         <input type="text" name="user-name" id="user-name" placeholder="name" required>
                         <input type="password" name="user-password" id="user-password" placeholder="password" required>
                         <input type="submit" style="display: none">

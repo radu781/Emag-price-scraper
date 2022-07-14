@@ -40,14 +40,21 @@ class ArgumentParser:
         match self.method:
             case Method.Post:
                 for arg in self.args:
-                    if arg.type == ArgType.Mandatory and not arg.key in self.url.form:
+                    if arg.type == ArgType.Mandatory and not (arg.key in self.url.form or arg.key in self.url.args):
                         not_found.append(arg.key)
                     elif arg.type == ArgType.Prefix:
                         for item in self.url.form:
                             if item.find(arg.key) != -1:
                                 out[arg.key] = item.split(arg.key)[1]
+                        for item in self.url.args:
+                            if item.find(arg.key) != -1:
+                                out[arg.key] = self.url.args[item]
                     else:
-                        out[arg.key] = self.url.form.get(arg.key, arg.default_value, type=str)
+                        value = self.url.form.get(arg.key, arg.default_value, type=str)
+                        if value == arg.default_value:
+                            out[arg.key] = self.url.args.get(arg.key, arg.default_value, type=str)
+                        else:
+                            out[arg.key] = value
             case Method.Get:
                 for arg in self.args:
                     if arg.type == ArgType.Mandatory and not arg.key in self.url.args:

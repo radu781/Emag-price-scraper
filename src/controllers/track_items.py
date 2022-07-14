@@ -27,6 +27,7 @@ def track_item() -> Response:
                 ItemDAO.remove_tracked_item_from_user(
                     values["unset"], session["user_id"]
                 )
+                del values["set"]
                 return jsonify(
                     {"data": values, "status": "success", "user": current_user}
                 )

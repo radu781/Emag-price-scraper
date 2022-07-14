@@ -1,6 +1,6 @@
 {% extends "base.html" %} {% block title %} My trackings {% endblock %} {% block content %}
 <div class="main">
-    {% if links %}
+    {% if user.ok %} {% if links %}
     <p>Found {{ entry_count }} entries</p>
     <p>My trackings:</p>
     <table class="table table-borderless table-responsive my-table">
@@ -35,6 +35,8 @@
     </table>
     {% else %}
     <p>Click on the checkbox next to an item to add it here</p>
+    {% endif %} {% else %}
+    <p>Log in first to see your tracked items</p>
     {% endif %}
 </div>
 {% endblock %}
