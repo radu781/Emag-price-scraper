@@ -1,7 +1,7 @@
 from aioflask import session
 from flask import request, Blueprint, redirect
-from utils.user import User
-from utils.user_dao import UserDAO
+from models.user import User
+from utils.database.user_dao import UserDAO
 
 from utils.argument_parser import *
 

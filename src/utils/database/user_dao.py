@@ -1,5 +1,5 @@
-from utils.dbmanager import DBManager
-from utils.user import User
+from utils.database.dbmanager import DBManager
+from models.user import User
 
 
 class UserDAO:

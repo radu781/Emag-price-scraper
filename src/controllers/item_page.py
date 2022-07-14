@@ -2,7 +2,7 @@ from utils.etc import sieve_prices
 from . import _get_current_user
 from aioflask import session
 from flask import make_response, render_template, Blueprint
-from utils.item_dao import ItemDAO
+from utils.database.item_dao import ItemDAO
 
 item_page_blueprint = Blueprint("item_page_blueprint", __name__)
 

@@ -1,8 +1,8 @@
 from configparser import ConfigParser
 from aioflask import Flask
 
-from utils.user import User
-from utils.user_dao import UserDAO
+from models.user import User
+from utils.database.user_dao import UserDAO
 
 ini_file = ConfigParser()
 ini_file.read("config/data.ini")

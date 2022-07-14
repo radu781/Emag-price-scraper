@@ -1,15 +1,15 @@
 from aioflask import session
-from flask import request, Blueprint, redirect
-from utils.item_dao import ItemDAO
-
+from flask import request, Blueprint, jsonify
+from utils.database.item_dao import ItemDAO
+from flask.wrappers import Response
 from utils.argument_parser import *
-from . import _get_current_user
+from controllers import _get_current_user
 
 track_item_blueprint = Blueprint("track_item_blueprint", __name__)
 
 
-@track_item_blueprint.route("/track", methods=["POST"])
-def track_item():
+@track_item_blueprint.route("/api/track", methods=["POST"])
+def track_item() -> Response:
     if request.method == "POST":
         parser = ArgumentParser(
             request,
@@ -27,12 +27,17 @@ def track_item():
                 ItemDAO.remove_tracked_item_from_user(
                     values["unset"], session["user_id"]
                 )
-                return redirect(session["last_page"])
+                return jsonify(
+                    {"data": values, "status": "success", "user": current_user}
+                )
             elif "set" in values:
                 values["set"] = values["set"].replace(".x", "").replace(".y", "")
                 ItemDAO.add_tracked_item_to_user(values["set"], session["user_id"])
-                return redirect(session["last_page"])
+                return jsonify(
+                    {"data": values, "status": "success", "user": current_user}
+                )
             else:
-                return "fail"
+                return jsonify({"status": "fail", "user": current_user})
         else:
-            return "fail"
+            return jsonify({"status": "fail", "user": current_user})
+    return Response()

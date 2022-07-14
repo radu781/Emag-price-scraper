@@ -3,7 +3,7 @@ from dataclasses import dataclass, field
 import random
 from bs4 import BeautifulSoup
 from bs4.element import Tag, NavigableString
-from scraper.item import Item
+from models.item import Item
 from scraper.scraper import ElementNotFoundException, Scraper
 import aiohttp
 import requests
