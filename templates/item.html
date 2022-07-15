@@ -4,13 +4,13 @@
         <div class="side"><img src="{{ image }}" alt=""></div>
         <div class="prices">
             <div class="graph">
-                {% for item in links %} {% set raw_price_string = item.price.split(' Lei')[0].replace(',', '.') %} {% set raw_price = (raw_price_string|int)*100//100 %}
+                {% for item in links %} {% set raw_price_string = item["price"].split(' Lei')[0].replace(',', '.') %} {% set raw_price = (raw_price_string|int)*100//100 %}
                 <div class="graph-bar" style="height: {{ raw_price * 10 }}px;">
                     <p>
-                        {{ item.price }}
+                        {{ item["price"] }}
                     </p>
                     <p>
-                        {{ item.date[:10] }}
+                        {{ item["date"][:10] }}
                     </p>
                 </div>
                 {% endfor %}

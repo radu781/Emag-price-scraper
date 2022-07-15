@@ -47,7 +47,7 @@
                 </div>
             </form>
             <div>
-                <a href="{{ url_for('mine_blueprint.mine') }}" class="link fake-button">My tracked items</a>
+                <a href="{{ url_for('mine_view_blueprint.mine_page') }}" class="link fake-button">My tracked items</a>
             </div>
             <div class="user-details">{% if user.ok %}
                 <div>
@@ -60,7 +60,6 @@
                 </div>
                 {% else %}
                 <div>
-                    {{ user.status }}
                     <form action="{{ url_for('user_login_view_blueprint.user_login') }}" method="post">
                         <input type="text" name="user-name" id="user-name" placeholder="name" required>
                         <input type="password" name="user-password" id="user-password" placeholder="password" required>
