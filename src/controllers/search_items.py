@@ -31,7 +31,7 @@ async def search() -> Response:
     current_user.status = User.Status.from_value(session.get("user_status", 3))
     values = parser.get_values()
     if values["q"] is None:
-        return make_response(vars(current_user))
+        return jsonify()
 
     if values["refresh-items"] == "on" and current_user.can_refresh:
         results = await _scrape_items(values)
@@ -41,8 +41,7 @@ async def search() -> Response:
         results = _database_items(values, current_user)
 
     out = {i: item for i, item in enumerate(results)}
-    ret = {"data": out, "user": current_user}
-    return make_response(jsonify(ret))
+    return jsonify({"data": out})
 
 
 async def _scrape_items(request_values: dict[str, str]) -> list[Item]:

@@ -28,17 +28,15 @@ def track_item() -> Response:
                     values["unset"], session["user_id"]
                 )
                 del values["set"]
-                return jsonify(
-                    {"data": values, "status": "success", "user": current_user}
-                )
+                return jsonify({"data": values, "user": current_user})
             elif "set" in values:
                 values["set"] = values["set"].replace(".x", "").replace(".y", "")
                 ItemDAO.add_tracked_item_to_user(values["set"], session["user_id"])
-                return jsonify(
-                    {"data": values, "status": "success", "user": current_user}
-                )
+                return jsonify({"data": values, "user": current_user})
             else:
-                return jsonify({"status": "fail", "user": current_user})
+                return jsonify(
+                    {"status": "fail", "reason": "set or unset parameters empty"}
+                )
         else:
-            return jsonify({"status": "fail", "user": current_user})
+            return jsonify({"status": "fail", "reason": "user not logged in"})
     return Response()

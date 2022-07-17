@@ -8,9 +8,9 @@ from models.user import User
 item_page_view_blueprint = Blueprint("item_page_view_blueprint", __name__)
 
 
-@item_page_view_blueprint.route("/item/<item_id>")
-def item_page(item_id: str) -> Response:
-    response = item(item_id)
+@item_page_view_blueprint.route("/item")
+def item_page() -> Response:
+    response = item()
 
     json_response = json.loads(response.data)
     try:

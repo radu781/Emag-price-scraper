@@ -11,8 +11,8 @@ mine_blueprint = Blueprint("mine_blueprint", __name__)
 def mine() -> Response:
     session["last_page"] = "/mine"
     current_user = _get_current_user(session)
-    if current_user is None:
-        return make_response("broken")
+    if current_user.id_ == -1:
+        return jsonify({"status": "fail", "reason": "not logged in"})
 
     results = ItemDAO.get_tracked_items_by_user(current_user.id_)
-    return make_response(jsonify({"data": results, "user": current_user}))
+    return make_response(jsonify({"data": results}))

@@ -28,9 +28,11 @@ def login() -> Response:
         current_user = UserDAO.log_user_in(
             User(values["user-name"], values["user-password"])
         )
+        if current_user.id_ == -1:
+            return jsonify({"status": "fail", "reason":  User.Status.from_value(current_user.status).name})
         session["user_id"] = current_user.id_
         session["user_status"] = current_user.status.value
         current_user = _get_current_user(session)
-        return jsonify({"status": "success", "user": current_user})
+        return jsonify({"user": current_user})
 
     return Response()

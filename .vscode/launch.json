@@ -8,7 +8,7 @@
 			"console": "integratedTerminal",
 			"justMyCode": true,
 			"cwd": "${workspaceFolder}",
-			"env": { "PYTHONPATH": "src;.;email" }
+			"env": { "PYTHONPATH": "src;." }
 		}
 	]
 }

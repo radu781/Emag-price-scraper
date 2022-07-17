@@ -13,6 +13,6 @@ def logout() -> Response:
     if request.method == "POST":
         session.pop("user_id", None)
         session.pop("user_status", None)
-        return jsonify({"status": "success", "user": _get_current_user(session)})
+        return jsonify({"user": _get_current_user(session)})
 
     return Response()
