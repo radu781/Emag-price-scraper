@@ -106,3 +106,10 @@ tr:nth-child(even) {
 .side {
     width: 50%;
 }
+
+#register-form-items {
+    visibility: hidden;
+    height: 0;
+    width: 0;
+    display: inline-block;
+}

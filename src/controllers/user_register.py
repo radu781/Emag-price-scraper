@@ -8,17 +8,18 @@ from flask.wrappers import Response
 from utils.argument_parser import *
 from . import _get_current_user
 
-user_login_blueprint = Blueprint("user_login_blueprint", __name__)
+user_register_blueprint = Blueprint("user_register_blueprint", __name__)
 
 
-@user_login_blueprint.route("/api/login", methods=["POST"])
-def login() -> Response:
+@user_register_blueprint.route("/api/register", methods=["POST"])
+def register() -> Response:
     if request.method == "POST":
         parser = ArgumentParser(
             request,
             {
                 Argument("user-name", ArgType.Mandatory, None),
                 Argument("user-password", ArgType.Mandatory, None),
+                Argument("user-password-confirm", ArgType.Mandatory, None),
             },
             Method.Post,
         )
@@ -26,22 +27,24 @@ def login() -> Response:
             values = parser.get_values()
         except ArgsNotFoundException as ex:
             return make_response(
-                jsonify(
-                    {
-                        "reason": "parameters not set: "
-                        + ", ".join(arg for arg in ex.args[0])
-                    }
-                ),
+                jsonify({"unsetVariables": ex.args}),
                 status.HTTP_400_BAD_REQUEST,
             )
-        current_user = UserDAO.log_user_in(
-            User(values["user-name"], values["user-password"])
-        )
-        if current_user.id_ == -1:
+        if values["user-password"] != values["user-password-confirm"]:
             return make_response(
-                jsonify({"reason": User.Status.from_value(current_user.status).name}),
-                status.HTTP_401_UNAUTHORIZED,
+                jsonify({"reason": "passwords are not the same"}),
+                status.HTTP_400_BAD_REQUEST,
             )
+        current_user = User(values["user-name"], values["user-password"])
+        if UserDAO.exists(current_user):
+            return make_response(
+                jsonify({"reason": "user already exists"}),
+                status.HTTP_400_BAD_REQUEST,
+            )
+
+        UserDAO.register_user(current_user)
+        UserDAO.log_user_in(current_user)
+
         session["user_id"] = current_user.id_
         session["user_status"] = current_user.status.value
         current_user = _get_current_user(session)

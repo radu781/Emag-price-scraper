@@ -1,5 +1,6 @@
 from aioflask import session
-from flask import request, Blueprint, jsonify
+from flask import request, Blueprint, jsonify, make_response
+from flask_api import status
 from utils.database.item_dao import ItemDAO
 from flask.wrappers import Response
 from utils.argument_parser import *
@@ -28,15 +29,20 @@ def track_item() -> Response:
                     values["unset"], session["user_id"]
                 )
                 del values["set"]
-                return jsonify({"data": values, "user": current_user})
+                return jsonify({"data": values})
             elif "set" in values:
                 values["set"] = values["set"].replace(".x", "").replace(".y", "")
                 ItemDAO.add_tracked_item_to_user(values["set"], session["user_id"])
-                return jsonify({"data": values, "user": current_user})
+                return jsonify({"data": values})
             else:
-                return jsonify(
-                    {"status": "fail", "reason": "set or unset parameters empty"}
+                return make_response(
+                    jsonify(
+                        {"reason": "set or unset parameters empty"}
+                    ), status.HTTP_400_BAD_REQUEST
                 )
         else:
-            return jsonify({"status": "fail", "reason": "user not logged in"})
+            return make_response(
+                jsonify({"reason": "user not logged in"}),
+                status.HTTP_401_UNAUTHORIZED,
+            )
     return Response()

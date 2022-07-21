@@ -13,7 +13,7 @@ class ItemDAO:
         )
 
     @staticmethod
-    def insert_multiple(items: list[Item]) -> None:
+    def insert_multiple(items: list[Item], date: datetime.datetime) -> None:
         DBManager().execute_multiple(
             "INSERT INTO emag(id, title, link, image) VALUES(:id, :title, :link, :image)",
             [
@@ -32,7 +32,7 @@ class ItemDAO:
                 {
                     "item_id": item.id_,
                     "price": item.price,
-                    "date": str(datetime.datetime.now()),
+                    "date": str(date),
                 }
                 for item in items
             ],
@@ -133,6 +133,10 @@ class ItemDAO:
         )
         item.price = str(results[0][0])
         return item
+
+    @staticmethod
+    def get_updated_prices(date: datetime.datetime) -> list[Item]:
+        ...
 
     @staticmethod
     def get_image(item_id: str) -> str:

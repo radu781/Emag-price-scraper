@@ -59,6 +59,13 @@ class UserDAO:
         return user
 
     @staticmethod
+    def register_user(user: User) -> None:
+        DBManager().execute(
+            "INSERT INTO users(name, password) VALUES(:name, :password)",
+            {"name": user.name, "password": user.password},
+        )
+
+    @staticmethod
     def get_user(id_: int) -> User:
         result = DBManager().execute(
             "SELECT * FROM users WHERE id=:id",
