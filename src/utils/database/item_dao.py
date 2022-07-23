@@ -2,6 +2,7 @@ import datetime
 from models.item import Item
 from utils.database.dbmanager import DBManager
 from models.user import User
+from utils.price_utils import PriceUtils
 
 
 class ItemDAO:
@@ -13,7 +14,7 @@ class ItemDAO:
         )
 
     @staticmethod
-    def insert_multiple(items: list[Item], date: datetime.datetime) -> None:
+    def insert_multiple(items: list[Item], date: datetime.datetime) -> list[dict[str, str | float]]:
         DBManager().execute_multiple(
             "INSERT INTO emag(id, title, link, image) VALUES(:id, :title, :link, :image)",
             [
@@ -26,6 +27,15 @@ class ItemDAO:
                 for item in items
             ],
         )
+        new_prices: list[dict[str, str | float]] = []
+        latest_prices = ItemDAO.get_latest_prices()
+        for item in items:
+            for latest in latest_prices:
+                if PriceUtils.price_has_updated(item, latest):
+                    new_prices.append(
+                        {"id": item.id_, "price": latest[3], "oldPrice":item.price}
+                    )
+
         DBManager().execute_multiple(
             "INSERT INTO prices(item_id, price, date) values(:item_id, :price, :date)",
             [
@@ -37,6 +47,7 @@ class ItemDAO:
                 for item in items
             ],
         )
+        return new_prices
 
     @staticmethod
     def get_matching_items(keyword: str, user: User) -> list[Item]:
@@ -79,15 +90,24 @@ class ItemDAO:
         )
         out: list[Item] = []
         for item in results:
-            out.append(Item(str(item[1]), item[2], item[4], item[3], item[0]))  # type: ignore
+            current_item = Item(
+                title=str(item[1]),
+                link=item[2],
+                price=item[4],
+                image=item[3],
+                id_=item[0],
+            )
+            current_item.price = ItemDAO.get_all_prices(current_item.id_)[-1]["price"]
+            out.append(current_item)
         return out
 
     @staticmethod
     def add_tracking(items: list[Item], user: User) -> list[Item]:
         results = ItemDAO.get_tracked_items_by_user(user.id_)
         for item in items:
-            if item in results:
-                item.tracking = True
+            for result in results:
+                if item.id_ == result.id_:
+                    item.tracking = True
 
         return items
 
@@ -102,7 +122,7 @@ class ItemDAO:
         )
 
     @staticmethod
-    def remove_tracked_item_from_user(item_id: str, user_id: int):
+    def remove_tracked_item_FROM_user(item_id: str, user_id: int):
         DBManager().execute(
             """DELETE FROM
                   trackings AS t
@@ -135,8 +155,42 @@ class ItemDAO:
         return item
 
     @staticmethod
-    def get_updated_prices(date: datetime.datetime) -> list[Item]:
-        ...
+    def get_latest_prices() -> list[tuple]:
+        return DBManager().execute(
+            """SELECT
+              date,
+              id,
+              title,
+              price
+            FROM
+              (
+                SELECT
+                  e1.id,
+                  e1.title,
+                  p.price,
+                  p.date
+                FROM
+                  emag AS e1
+                  JOIN prices AS p on p.item_id = e1.id
+                  and e1.id in (
+                    SELECT
+                      distinct e.id
+                    FROM
+                      emag AS e
+                      JOIN prices AS p on p.item_id = e.id
+                  )
+              ) AS inner_table
+            WHERE
+              date in (
+                SELECT
+                  max(date)
+                FROM
+                  prices
+                group by
+                  item_id
+              )""",
+            {},
+        )
 
     @staticmethod
     def get_image(item_id: str) -> str:

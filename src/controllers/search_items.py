@@ -5,6 +5,8 @@ from flask import Blueprint, request, jsonify
 from flask.wrappers import Response
 
 from controllers import _get_current_user
+from mail.email import Email
+from mail.sender import EmailSender
 from scraper.emag_scraper import EmagScraper
 from models.item import Item
 from utils.argument_parser import *
@@ -38,7 +40,13 @@ async def search() -> Response:
         results = await _scrape_items(values)
         results = ItemDAO.add_tracking(results, current_user)
         current_date = datetime.now()
-        ItemDAO.insert_multiple(results, current_date)
+        changed_prices = ItemDAO.insert_multiple(
+            results,
+            current_date,
+        )
+        # EmailSender.queue(
+        #     Email("ADDRESS@gmail.com", "ITEMS UPDATE", str(changed_prices))
+        # )
     else:
         results = _database_items(values, current_user)
 
@@ -54,7 +62,6 @@ async def _scrape_items(request_values: dict[str, str]) -> list[Item]:
     )
     results = await asyncio.create_task(scraper.get_results())
 
-    ItemDAO.insert_multiple(results, datetime.now())
     return results
 
 

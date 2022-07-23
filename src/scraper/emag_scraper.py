@@ -1,6 +1,6 @@
 import asyncio
 from dataclasses import dataclass, field
-import random
+import hashlib
 from bs4 import BeautifulSoup
 from bs4.element import Tag, NavigableString
 from models.item import Item
@@ -67,13 +67,14 @@ class EmagScraper(Scraper):
                 )
                 for card in cards:
                     try:
+                        link = self._get_link(card)
                         out.append(
                             Item(
                                 self._get_title(card),
-                                self._get_link(card),
+                                link,
                                 self._get_price(card),
                                 self._get_image(card),
-                                random.randbytes(64).hex()
+                                hashlib.sha256(bytes(link, "utf-8")).hexdigest()[:16]
                             )
                         )
                     except ElementNotFoundException:
