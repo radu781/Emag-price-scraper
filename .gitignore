@@ -4,3 +4,4 @@ flask_session
 !.vscode/launch.json
 *.ini
 !*.example.ini
+*.mo

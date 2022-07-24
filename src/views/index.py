@@ -7,13 +7,20 @@ from models.item import Item
 from utils.argument_parser import *
 
 from controllers.search_items import search
-from controllers import _get_current_user
+from controllers import _get_current_user, babel
+from flask_babel import gettext
 
 index_blueprint = Blueprint("index_blueprint", __name__)
 
 
+@babel.localeselector
+def get_locale():
+    return "es"
+
+
 @index_blueprint.route("/", methods=["GET", "POST"])
 async def index() -> Response:
+    anthony = gettext("anthony")
     session["last_page"] = request.url
     response = await search()
 
@@ -29,9 +36,8 @@ async def index() -> Response:
                 links=items,
                 entry_count=len(items),
                 user=user,
+                anthony=anthony,
             )
         )
     except KeyError:
-        return make_response(
-            render_template("index.html", user=user)
-        )
+        return make_response(render_template("index.html", user=user, anthony=anthony))

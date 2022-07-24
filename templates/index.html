@@ -1,6 +1,8 @@
 {% extends "base.html" %} {% block title %} Main page {% endblock %} {% block scripts %} {% endblock %} {% block content %}
 
 <div class="main">
+    <h1>YOUR NAME: {{ gettext("Computer") }} </h1>
+    <h1>anthony: {{ anthony }} </h1>
     {% if links %}
     <p>Found {{ entry_count }} entries</p>
     <table class="table table-borderless table-responsive my-table">

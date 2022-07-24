@@ -1,6 +1,6 @@
 from __future__ import annotations
 from dataclasses import dataclass, field
-from enum import Enum, auto, IntEnum
+from enum import Enum, IntEnum, auto
 from hashlib import sha256
 from typing import Any
 

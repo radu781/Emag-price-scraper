@@ -1,6 +1,6 @@
 from configparser import ConfigParser
 from aioflask import Flask
-
+from flask_babel import Babel
 from models.user import User
 from utils.database.user_dao import UserDAO
 
@@ -11,6 +11,9 @@ app = Flask(__name__, template_folder="../../templates", static_folder="../../st
 app.config["SECRET_KEY"] = ini_file.get("pages", "key")
 app.config["SESSION_TYPE"] = "SameSite"
 app.config["SESSION_COOKIE_PATH"] = "/"
+app.config["BABEL_DEFAULT_LOCALE"] = "en"
+app.config["BABEL_TRANSLATION_DIRECTORIES "] = "./translations"
+babel = Babel(app)
 
 
 def _get_current_user(session) -> User:

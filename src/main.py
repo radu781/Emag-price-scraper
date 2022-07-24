@@ -2,7 +2,7 @@ import nest_asyncio
 
 nest_asyncio.apply()
 
-from controllers import app
+from controllers import app, babel
 from controllers.mine import mine_blueprint
 from controllers.user_logout import user_logout_blueprint
 from controllers.user_login import user_login_blueprint
