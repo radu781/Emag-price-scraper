@@ -5,7 +5,7 @@ from flask import Blueprint, request, jsonify
 from flask.wrappers import Response
 
 from controllers import _get_current_user
-from mail.email import Email
+from mail.price_email import PriceEmail
 from mail.sender import EmailSender
 from scraper.emag_scraper import EmagScraper
 from models.item import Item
@@ -44,9 +44,15 @@ async def search() -> Response:
             results,
             current_date,
         )
-        # EmailSender.queue(
-        #     Email("ADDRESS@gmail.com", "ITEMS UPDATE", str(changed_prices))
-        # )
+        tracks: list[dict[str, str | list[str] | float]] = []
+        for item in changed_prices:
+            tracks.append(
+                {
+                    "itemId": item["id"],
+                    "users": ItemDAO.get_users_tracking_item(str(item["id"])),
+                }
+            )
+        EmailSender.queue(PriceEmail(tracks))
     else:
         results = _database_items(values, current_user)
 

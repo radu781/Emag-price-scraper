@@ -14,7 +14,9 @@ class ItemDAO:
         )
 
     @staticmethod
-    def insert_multiple(items: list[Item], date: datetime.datetime) -> list[dict[str, str | float]]:
+    def insert_multiple(
+        items: list[Item], date: datetime.datetime
+    ) -> list[dict[str, str | float]]:
         DBManager().execute_multiple(
             "INSERT INTO emag(id, title, link, image) VALUES(:id, :title, :link, :image)",
             [
@@ -33,7 +35,7 @@ class ItemDAO:
             for latest in latest_prices:
                 if PriceUtils.price_has_updated(item, latest):
                     new_prices.append(
-                        {"id": item.id_, "price": latest[3], "oldPrice":item.price}
+                        {"id": item.id_, "oldPrice": latest[3], "newPrice": item.price}
                     )
 
         DBManager().execute_multiple(
@@ -59,14 +61,6 @@ class ItemDAO:
             out.append(ItemDAO.add_price(Item.from_database_columns(sub_item)))
         out = ItemDAO.add_tracking(out, user)
         return out
-
-    @staticmethod
-    def add_id(item: Item) -> Item:
-        results = DBManager().execute(
-            "SELECT * FROM emag WHERE link = :link", {"link": item.link}
-        )
-        item_no_price = Item.from_database_columns(results[0])
-        return item_no_price
 
     @staticmethod
     def get_tracked_items_by_user(user_id: int) -> list[Item]:
@@ -122,7 +116,7 @@ class ItemDAO:
         )
 
     @staticmethod
-    def remove_tracked_item_FROM_user(item_id: str, user_id: int):
+    def remove_tracked_item_from_user(item_id: str, user_id: int):
         DBManager().execute(
             """DELETE FROM
                   trackings AS t
@@ -197,3 +191,16 @@ class ItemDAO:
         return DBManager().execute(
             "SELECT image FROM emag WHERE id=:id", {"id": item_id}
         )[0][0]
+
+    @staticmethod
+    def get_users_tracking_item(item_id: str) -> list[str]:
+        result = DBManager().execute(
+            """SELECT
+              user_id
+            FROM
+              trackings
+            WHERE
+              item_id = :item_id""",
+            {"item_id": item_id},
+        )
+        return [item[0] for item in result]

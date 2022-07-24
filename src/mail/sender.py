@@ -1,4 +1,5 @@
 import smtplib, ssl
+from time import sleep
 
 from mail.email import Email
 from . import _from, _password
@@ -12,13 +13,13 @@ class EmailSender:
     @staticmethod
     def queue(email: Email):
         email.message["From"] = EmailSender.FROM
-        EmailSender.mails.append(email)
-        current_mail = EmailSender.mails[0]
-        EmailSender.mails.remove(current_mail)
-        EmailSender.__send(current_mail)
+        for mail in email.format_mails():
+            EmailSender.mails.append(mail)
+        EmailSender.__send()
 
     @staticmethod
-    def __send(email: Email) -> None:
+    def __send_single(email: Email) -> None:
+        print("Sending email", email.text)
         if EmailSender.FROM == "" or EmailSender.PASSWORD == "":
             return
 
@@ -28,3 +29,9 @@ class EmailSender:
             server.login(EmailSender.FROM, EmailSender.PASSWORD)
             server.sendmail(EmailSender.FROM, email.to, email.message.as_string())
             server.quit()
+
+    @staticmethod
+    def __send()->None:
+        while EmailSender.mails != []:
+            EmailSender.__send_single(EmailSender.mails.pop(0))
+            sleep(1.5)
