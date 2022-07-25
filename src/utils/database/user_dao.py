@@ -1,18 +1,9 @@
+import datetime
 from utils.database.dbmanager import DBManager
 from models.user import User
 
 
 class UserDAO:
-    @staticmethod
-    def insert(user: User) -> None:
-        DBManager().execute(
-            "INSERT INTO users(name, password) VALUES(:name, :pass)",
-            {
-                "name": user.name,
-                "pass": user.password,
-            },
-        )
-
     @staticmethod
     def exists(user: User) -> bool:
         result = DBManager().execute(
@@ -61,8 +52,12 @@ class UserDAO:
     @staticmethod
     def register_user(user: User) -> None:
         DBManager().execute(
-            "INSERT INTO users(name, password) VALUES(:name, :password)",
-            {"name": user.name, "password": user.password},
+            "INSERT INTO users(name, password, date_created) VALUES(:name, :password, :date)",
+            {
+                "name": user.name,
+                "password": user.password,
+                "date": str(datetime.datetime.now()),
+            },
         )
 
     @staticmethod
@@ -73,4 +68,10 @@ class UserDAO:
                 "id": id_,
             },
         )
-        return User(str(result[0][1]), None, id_, permissions=int(result[0][3]))
+        return User(
+            name=str(result[0][1]),
+            password=None,
+            date_created=result[0][4],
+            id_=id_,
+            permissions=int(result[0][3]),
+        )

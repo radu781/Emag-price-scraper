@@ -1,9 +1,11 @@
 from aioflask import session
 from flask import request, Blueprint, jsonify, make_response
 from flask_api import status
+from mail.welcome_email import WelcomeEmail
 from models.user import User
 from utils.database.user_dao import UserDAO
 from flask.wrappers import Response
+from mail.sender import EmailSender
 
 from utils.argument_parser import *
 from . import _get_current_user
@@ -44,6 +46,7 @@ def register() -> Response:
 
         UserDAO.register_user(current_user)
         UserDAO.log_user_in(current_user)
+        EmailSender.queue(WelcomeEmail(current_user))
 
         session["user_id"] = current_user.id_
         session["user_status"] = current_user.status.value

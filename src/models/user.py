@@ -1,5 +1,6 @@
 from __future__ import annotations
 from dataclasses import dataclass, field
+from datetime import datetime
 from enum import Enum, auto, IntEnum
 from hashlib import sha256
 from typing import Any
@@ -28,6 +29,7 @@ class User:
 
     name: str
     password: str | None
+    date_created: datetime = field(default=datetime(1970, 1, 1, 0, 0, 0))
     id_: int = field(default=-1)
     status: Status = field(default=Status.LoggedIn)
     permissions: int = field(default=0)
@@ -58,4 +60,5 @@ class User:
             id_=d["id_"],
             status=d["status"],
             permissions=d["permissions"],
+            date_created=d["date_created"],
         )

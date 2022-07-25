@@ -34,4 +34,4 @@ class EmailSender:
     def __send()->None:
         while EmailSender.mails != []:
             EmailSender.__send_single(EmailSender.mails.pop(0))
-            sleep(1.5)
+            # sleep(60)

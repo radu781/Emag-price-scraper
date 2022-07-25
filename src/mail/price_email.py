@@ -23,6 +23,6 @@ class PriceEmail(Email):
         for user_email in pairs:
             changed = ", ".join(item_id for item_id in pairs[user_email])
             current_text = f"Hello, {user_email}!\nItems with id [{changed}] have changed price"
-            emails.append(RawEmail(user_email, self.subject, None, current_text))
+            emails.append(RawEmail(user_email, self.subject, current_text))
 
         return emails

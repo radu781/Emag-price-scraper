@@ -39,25 +39,30 @@ async def search() -> Response:
     if values["refresh-items"] == "on" and current_user.can_refresh:
         results = await _scrape_items(values)
         results = ItemDAO.add_tracking(results, current_user)
-        current_date = datetime.now()
-        changed_prices = ItemDAO.insert_multiple(
-            results,
-            current_date,
-        )
-        tracks: list[dict[str, str | list[str] | float]] = []
-        for item in changed_prices:
-            tracks.append(
-                {
-                    "itemId": item["id"],
-                    "users": ItemDAO.get_users_tracking_item(str(item["id"])),
-                }
-            )
+        tracks = __refresh_changed_prices(results)
         EmailSender.queue(PriceEmail(tracks))
     else:
         results = _database_items(values, current_user)
 
     out = {i: item for i, item in enumerate(results)}
     return jsonify({"data": out})
+
+
+def __refresh_changed_prices(results: list[Item]):
+    changed_prices = ItemDAO.insert_multiple(
+        results,
+        datetime.now(),
+    )
+    tracks: list[dict[str, str | list[str] | float]] = []
+    for item in changed_prices:
+        tracks.append(
+            {
+                "itemId": item["id"],
+                "users": ItemDAO.get_users_tracking_item(str(item["id"])),
+            }
+        )
+
+    return tracks
 
 
 async def _scrape_items(request_values: dict[str, str]) -> list[Item]:

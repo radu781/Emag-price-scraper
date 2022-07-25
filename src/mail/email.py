@@ -10,7 +10,7 @@ from typing import Any
 class Email(ABC):
     to: str
     subject: str
-    raw: Any
+    raw: Any = field(init=False)
     text: str = field(default="")
     html: str = field(default="")
     message: MIMEMultipart = field(init=False, default=MIMEMultipart("alternative"))
