@@ -24,6 +24,16 @@ class User:
                 return User.Status.NameMismatch
             return User.Status.PasswordMismatch
 
+        @staticmethod
+        def from_string(value: str) -> User.Status:
+            if value == User.Status.LoggedIn.name:
+                return User.Status.LoggedIn
+            elif value == User.Status.LoggedOut.name:
+                return User.Status.LoggedOut
+            elif value == User.Status.NameMismatch.name:
+                return User.Status.NameMismatch
+            return User.Status.PasswordMismatch
+
     class Permission(Enum):
         RefreshSearches = 2**0
 

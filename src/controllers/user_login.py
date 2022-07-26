@@ -11,7 +11,7 @@ from . import _get_current_user
 user_login_blueprint = Blueprint("user_login_blueprint", __name__)
 
 
-@user_login_blueprint.route("/api/login", methods=["POST"])
+@user_login_blueprint.route("/api/login", methods=["GET", "POST"])
 def login() -> Response:
     if request.method == "POST":
         parser = ArgumentParser(

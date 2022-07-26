@@ -43,7 +43,7 @@
                         <input type="range" min="0" max="9999" name="price-max" id="price-max">
                         <div id="price-max-number">-</div>
                     </div>
-                    {% if user.ok and user.can_refresh %}
+                    {% if user and user.ok and user.can_refresh %}
                     <div>
                         <label for="refresh-items">Refresh search</label>
                         <input type="checkbox" name="refresh-items" id="refresh-items">
@@ -54,7 +54,7 @@
             <div>
                 <a href="{{ url_for('mine_view_blueprint.mine_page') }}" class="link fake-button">My tracked items</a>
             </div>
-            <div class="user-details">{% if user.ok %}
+            <div class="user-details">{% if user and user.ok %}
                 <div>
                     <p>
                         Welcome, {{ user.name }}
@@ -65,18 +65,8 @@
                 </div>
                 {% else %}
                 <div>
-                    <form action="{{ url_for('user_login_view_blueprint.user_login') }}" method="post" id="login-form-items">
-                        <input type="text" name="user-name" id="user-name" placeholder="name" required>
-                        <input type="password" name="user-password" id="user-password" placeholder="password" required>
-                        <input type="submit" style="display: none">
-                    </form>
-                    <form action="{{ url_for('user_register_view_blueprint.user_register') }}" method="post" id="register-form-items">
-                        <input type="text" name="user-name" id="user-name" placeholder="name" required>
-                        <input type="password" name="user-password" id="user-password" placeholder="password" required>
-                        <input type="password" name="user-password-confirm" id="user-password-confirm" placeholder="password" required>
-                        <input type="submit" style="display: none">
-                    </form>
-                    <button onclick="onToggleLoginClicked()">Register</button>
+                    <a href="{{ url_for('user_login_view_blueprint.user_login') }}">Login</a>
+                    <a href="{{ url_for('user_register_view_blueprint.user_register') }}">Register</a>
                 </div>
                 {% endif %}
             </div>

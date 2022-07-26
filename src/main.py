@@ -18,6 +18,8 @@ from views.logout_view import user_logout_view_blueprint
 from views.mine_view import mine_view_blueprint
 from views.item_view import item_page_view_blueprint
 from views.register_view import user_register_view_blueprint
+from views.login_inner import user_login_inner_blueprint
+from views.register_inner import user_register_inner_blueprint
 
 app.register_blueprint(index_blueprint)
 app.register_blueprint(mine_blueprint)
@@ -33,6 +35,8 @@ app.register_blueprint(mine_view_blueprint)
 app.register_blueprint(item_page_view_blueprint)
 app.register_blueprint(user_register_blueprint)
 app.register_blueprint(user_register_view_blueprint)
+app.register_blueprint(user_login_inner_blueprint)
+app.register_blueprint(user_register_inner_blueprint)
 
 if __name__ == "__main__":
     app.run(port=80, debug=True)

@@ -1,0 +1,24 @@
+{% extends "base.html" %} {% block title %} Main page {% endblock %} {% block scripts %} {% endblock %} {% block content %}
+<div class="center login">
+    <form action="{{ url_for('user_login_view_blueprint.user_login') }}" method="post">
+        <div class="formdiv">
+            <label for="user-name">Name</label>
+            <input type="text" name="user-name" id="user-name" required>
+        </div>
+        <div class="formdiv">
+            <label for="user-password">Password</label>
+            <input type="password" name="user-password" id="user-password" required>
+        </div>
+        <input type="submit" style="display: none;">
+    </form>
+    {% if reason %} {{ reason }} {% if reason.value == 4 %}
+    <div>
+        Forgot your password? Click <a href="/">here</a>
+    </div>
+    {% endif %}{% endif %}
+    <div>
+        No account? Register
+        <a href="{{ url_for('user_register_view_blueprint.user_register') }}">here</a> first
+    </div>
+</div>
+{% endblock %}
