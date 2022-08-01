@@ -24,6 +24,10 @@ class EmagScraper(Scraper):
 
         self.all_soup = BeautifulSoup(page.content, "html.parser")
         footer: list[Tag] = self.all_soup.find_all(class_="listing-panel")
+
+        if len(footer) == 0:
+            raise Exception("Captcha completion required")
+
         results = footer[1].find(class_="listing-panel-footer")
         if not isinstance(results, Tag):
             self.pages = 1
@@ -51,9 +55,10 @@ class EmagScraper(Scraper):
             result = await asyncio.gather(*tasks)
             out: list[Item] = []
             for row in result:
-                for item in row:
+                for item in row:  # type: ignore
                     out.append(item)
             return out
+        return []
 
     async def _get_details(
         self, session: aiohttp.ClientSession, url: str
@@ -74,7 +79,7 @@ class EmagScraper(Scraper):
                                 link,
                                 self._get_price(card),
                                 self._get_image(card),
-                                hashlib.sha256(bytes(link, "utf-8")).hexdigest()[:16]
+                                hashlib.sha256(bytes(link, "utf-8")).hexdigest()[:16],
                             )
                         )
                     except ElementNotFoundException:

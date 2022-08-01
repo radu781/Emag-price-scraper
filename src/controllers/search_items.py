@@ -26,7 +26,7 @@ async def search() -> Response:
             Argument("search-count", ArgType.Optional, 50),
             Argument("price-min", ArgType.Optional, 0),
             Argument("price-max", ArgType.Optional, 10_000),
-            Argument("refresh-items", ArgType.Optional, "off"),
+            # Argument("refresh-items", ArgType.Optional, "off"),
         },
     )
 
@@ -36,13 +36,12 @@ async def search() -> Response:
     if values["q"] is None:
         return jsonify()
 
-    if values["refresh-items"] == "on" and current_user.can_refresh:
-        results = await _scrape_items(values)
-        results = ItemDAO.add_tracking(results, current_user)
-        tracks = __refresh_changed_prices(results)
-        EmailSender.queue(PriceEmail(tracks))
-    else:
-        results = _database_items(values, current_user)
+    results = await _scrape_items(values)
+    results = ItemDAO.add_tracking(results, current_user)
+    tracks = __refresh_changed_prices(results)
+    EmailSender.queue(PriceEmail(tracks))
+    # else
+        # results = _database_items(values, current_user)
 
     out = {i: item for i, item in enumerate(results)}
     return jsonify({"data": out})

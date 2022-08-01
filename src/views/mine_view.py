@@ -23,4 +23,6 @@ def mine_page() -> Response:
             )
         )
     except KeyError:
-        return make_response("broken")
+        return make_response(
+            render_template("mine.html", user=_get_current_user(session))
+        )
